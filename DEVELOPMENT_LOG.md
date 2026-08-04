@@ -111,9 +111,9 @@ Each step is implemented, logged, and committed on its own. Sub-items are the co
 - [x] **Step 4 — Hostname → tenant middleware (subdomain case)**
   - [x] Resolve `*.fieldpie.site` → tenant/site; 404 unknown hosts (pure edge parser + Node-runtime DB resolver + rewrite to `/sites/[host]`)
   - [x] Wildcard subdomain + wildcard cert configuration documented (`docs/subdomain-routing.md`)
-- [ ] **Step 5 — Block catalog v1 + theming**
-  - [ ] Hero, Services, Reviews, Gallery, Contact as typed React components
-  - [ ] Usable in both editor and runtime; themed via CSS variables
+- [x] **Step 5 — Block catalog v1 + theming**
+  - [x] Hero, Services, Reviews, Gallery, Contact as typed React components (`src/blocks/*`)
+  - [x] Usable in both editor and runtime; themed via CSS variables (`src/shared/theme.ts` + `ThemeScope`)
 - [ ] **Step 6 — Public render path (SSR/SSG)**
   - [ ] Render published page JSON → HTML for (tenant, path)
   - [ ] SEO scaffolding: title, meta, OG, LocalBusiness JSON-LD, sitemap.xml, robots.txt
@@ -148,6 +148,35 @@ Each step is implemented, logged, and committed on its own. Sub-items are the co
 ## Progress log
 
 Newest entries at the top.
+
+### 2026-08-04 — Step 5 complete: block catalog v1 + theming
+Added the first block catalog and the per-tenant theming layer. Five typed, presentational,
+accessible, mobile-first blocks under `src/blocks/`: `hero`, `services`, `reviews`, `gallery`,
+`contact`. Each is a pure `(props) => ReactNode` component paired with a `defineBlock`
+definition (stable `type`, editor `label`/`description`/`category`, and `defaultProps`), so the
+same component serves both the runtime renderer (Step 6) and the Puck editor (Step 7). The
+definitions are deliberately **Puck-agnostic** — Step 7 maps them onto Puck field config; no
+editor dependency leaks into the runtime bundle.
+
+`src/blocks/catalog.ts` is the single registry (`blockCatalog`, `BlockType`, `blockList`,
+`getBlockDefinition`, `isKnownBlockType`) that both later steps read from. Contract types live
+in `src/blocks/types.ts`; `BlockNode` (`{ type, props }`) is the JSON shape the Step 6 renderer
+will consume. The one prop-erasure cast is centralized in `defineBlock` (documented), keeping
+the catalog and all call sites `any`-free.
+
+Theming: blocks never hardcode colors/fonts — they use the existing Tailwind token utilities
+(`bg-brand`, `text-ink`, `font-heading`, `rounded-token`), which resolve to the CSS variables
+in `app/globals.css`. `src/shared/theme.ts` adds `ThemeTokens` + `themeTokensToStyle()` (maps a
+tenant's untyped `sites.theme_tokens` JSON to CSS variables, ignoring unknown keys / non-string
+values), and `src/shared/theme-scope.tsx` adds `ThemeScope`, the wrapper Step 6 will place
+around each tenant's block tree. Images use plain lazy `<img>` for now; `next/image`
+optimization is deferred (noted inline).
+
+**Verified in the tool sandbox:** `npx tsc --noEmit` clean; `npx vitest run` → 42/42 passing
+(new: 4 theme-mapping cases + 10 catalog cases that SSR-render every block with its default
+props via `react-dom/server`, exercising the exact Step 6 render path). Added
+`esbuild.jsx: "automatic"` to `vitest.config.ts` so `.tsx` tests need no React import.
+Next: Step 6 (public render path — SSR/SSG + SEO scaffolding).
 
 ### 2026-08-04 — Step 4 complete: hostname → tenant middleware (subdomain case)
 Two-stage tenant resolution. The hostname *parse* is a pure, edge-safe function
@@ -245,6 +274,7 @@ Newest at the top. Messages are American English, imperative mood.
 
 | Date       | Commit message                                                                 |
 | ---------- | ------------------------------------------------------------------------------ |
+| 2026-08-04 | `feat(blocks): add block catalog v1 (hero, services, reviews, gallery, contact) with per-tenant theming` |
 | 2026-08-04 | `feat(tenancy): resolve tenant by hostname via edge middleware and subdomain routing` |
 | 2026-08-04 | `feat(tenancy): add tenant-scoped data-access layer with isolation tests`       |
 | 2026-08-04 | `refactor(db): switch to Railway Postgres via node-postgres driver`             |
