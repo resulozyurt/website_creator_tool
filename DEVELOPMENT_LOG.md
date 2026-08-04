@@ -36,17 +36,20 @@ perform. Check them off as you go.
 
 **Step 2 (database) — needed before anything runs against the DB:**
 
-- [ ] Create a free project at **neon.tech** and a database inside it.
-- [ ] Copy the **pooled** and **direct** connection strings from the Neon dashboard.
-- [ ] Copy `.env.example` → `.env.local`, and paste them into `DATABASE_URL` (pooled) and
-      `DATABASE_URL_UNPOOLED` (direct).
-- [ ] Run `npm run db:generate` then `npm run db:migrate` to create the tables in Neon.
+- [x] `.env.local` created; S3 storage + AI-gateway creds placed (from `neon-storage.env`):
+      `AWS_ENDPOINT_URL_S3`, `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`,
+      `OPENAI_API_KEY`. Neon is kept **only** for object storage + AI gateway.
+- [ ] **In Railway:** add a **Postgres** service to your project.
+- [ ] Copy its **`DATABASE_URL`** (public URL for local use) into `.env.local`.
+- [ ] Confirm the Neon object-storage **bucket name** and set `S3_BUCKET`.
+- [ ] Run `npm install`, then `npm run db:generate` and `npm run db:migrate` to create the tables.
 
 **Later (the assistant will flag each when its step arrives):**
 
-- Vercel project (hosting/deploy), Cloudflare for SaaS account (Phase 2 custom domains),
-  an S3-compatible bucket (media uploads), an AI provider API key (Phase 1.5), and FieldPie
-  API access (optional prefill + lead creation).
+- Railway app deployment (connect the GitHub repo; set env vars) and a Cloudflare for SaaS
+  account (Phase 2 custom domains; also fronts the app for CDN).
+- FieldPie API access (optional prefill + lead creation).
+- Already provided: S3-compatible storage (Neon Object Storage) and an AI-gateway key.
 
 ---
 
@@ -56,11 +59,18 @@ perform. Check them off as you go.
 
 - Framework: **Next.js (App Router) + React + TypeScript strict**
 - Editor: **Puck** (block-based, portable JSON)
-- Database: **Neon** (serverless Postgres) + **Drizzle** ORM
-- Custom domains & SSL: **Cloudflare for SaaS**
-- Hosting: **Vercel** now, documented self-host path later
+- Database: **Railway Postgres** + **Drizzle** ORM (via the `node-postgres` driver)
+- Hosting: **Railway** (Next.js as a Node service). Cloudflare fronts published sites for CDN.
+- Custom domains & SSL: **Cloudflare for SaaS** (wildcard `*.fieldpie.site` + BYO domains)
 - Styling: **Tailwind CSS** + per-tenant **design-token** layer (CSS variables)
-- Media: **S3-compatible** object storage
+- Media: **S3-compatible** object storage — **Neon Object Storage** (retained)
+- AI (Phase 1.5): **Neon AI Gateway** (retained)
+
+> **Change history:** Originally Vercel + Neon Postgres. Switched to **Railway (host +
+> Postgres)** on 2026-08-04 at the user's request (existing Railway account, more familiar).
+> Neon is kept only for object storage + AI gateway. DB driver changed from
+> `@neondatabase/serverless` to `node-postgres`. The `PROJECT_PLAN*` documents still describe
+> the original Vercel/Neon choice in places; **this section is authoritative.**
 
 **Direction (confirmed):**
 
@@ -93,11 +103,11 @@ Each step is implemented, logged, and committed on its own. Sub-items are the co
   - [x] Drizzle config + Neon connection (pooled runtime client + unpooled for migrations)
   - [x] Tables: `tenants, templates, sites, pages, blocks, domains, media_assets, publish_states`
   - [x] `fieldpie_account_id` nullable; `tenant_id` on every content table; enums; indexes
-  - [ ] First migration SQL — run `npm run db:generate` locally once `DATABASE_URL_UNPOOLED` is set (needs deps installed; not run in the tool sandbox)
-- [ ] **Step 3 — Tenant context + `TenantScopedDb`**
-  - [ ] Request-scoped tenant context
-  - [ ] `TenantScopedDb` wrapper injecting `tenant_id` on every read/write
-  - [ ] Tests proving cross-tenant access is impossible
+  - [x] First migration generated (`drizzle/0000_wealthy_killmonger.sql`) and **applied to Railway Postgres** (`npm run db:migrate` succeeded).
+- [x] **Step 3 — Tenant context + `TenantScopedDb`**
+  - [x] Request-scoped `TenantContext` (`src/tenancy/context.ts`, immutable/frozen)
+  - [x] `forTenant(tenantId)` wrapper: filters every read/update/delete by `tenant_id`, forces `tenant_id` on insert; per-table repos (sites, pages, blocks, domains, media_assets, publish_states, + tenant self). `templates` excluded (global).
+  - [x] Isolation tests (`tests/tenancy/...`) proving the tenant filter is always present, via `.toSQL()` (offline). Vitest configured. **Run `npm test` locally — not run in the tool sandbox.**
 - [ ] **Step 4 — Hostname → tenant middleware (subdomain case)**
   - [ ] Resolve `*.fieldpie.site` → tenant/site; 404 unknown hosts
   - [ ] Wildcard subdomain + wildcard cert configuration documented
@@ -139,6 +149,36 @@ Each step is implemented, logged, and committed on its own. Sub-items are the co
 
 Newest entries at the top.
 
+### 2026-08-04 — Step 3 complete: tenant-scoped data-access layer
+Added `src/tenancy/context.ts` (immutable `TenantContext`), `src/tenancy/tenant-scoped-db.ts`
+(`forTenant(tenantId)` — per-table repos for sites/pages/blocks/domains/media_assets/
+publish_states + the tenant's own row; every read/update/delete is filtered by `tenant_id`
+and every insert forces it; `templates` excluded as global), and `src/tenancy/index.ts`.
+Added `vitest.config.ts` (aliases `@`, dummy `DATABASE_URL`) and offline isolation tests in
+`tests/tenancy/tenant-scoped-db.test.ts` that assert via `.toSQL()` that the tenant filter is
+always present and inserts can't escape the scope. **Tests not run in the tool sandbox — run
+`npm test` locally / in CI.** Also confirmed the first migration applied to Railway Postgres.
+Next: Step 4 (hostname → tenant middleware).
+
+### 2026-08-04 — Fix: drizzle-kit `url: ''` (real root cause)
+`db:migrate` kept reporting `url: ''` even with `DATABASE_URL` set. Real cause: the config
+used `DATABASE_URL_UNPOOLED ?? DATABASE_URL`, and `.env.local` defines
+`DATABASE_URL_UNPOOLED=""` (empty but **defined**). `??` only skips null/undefined, so the
+empty string won over the real `DATABASE_URL`. Fixed by using `||` with `.trim()` so empty
+values fall through: `DATABASE_URL_UNPOOLED?.trim() || DATABASE_URL?.trim() || ""`.
+(Also kept the `dotenv-cli` wrapper on `db:migrate`/`push`/`studio` so `.env.local` loads for
+CLI runs; `dotenv-cli` was added to devDependencies. Note: a global `python-dotenv` can shadow
+the `dotenv` command until `npm install` puts node's `dotenv-cli` in `node_modules/.bin`.)
+Migration `drizzle/0000_wealthy_killmonger.sql` (8 tables) generated — commit the `drizzle/` folder.
+
+### 2026-08-04 — Step 2 revision: switch to Railway (host + Postgres)
+At the user's request (existing Railway account), moved hosting and Postgres to **Railway**.
+Changed the DB driver from `@neondatabase/serverless` (neon-http) to **`node-postgres`**
+(`pg` + `drizzle-orm/node-postgres`) in `src/db/client.ts`; updated `package.json` deps
+(`pg`, `@types/pg`), `drizzle.config.ts`, and the DB sections of `.env.local` / `.env.example`.
+The schema is unchanged. Neon is retained only for object storage + AI gateway. Runtime is now
+all-Node (no edge), which suits `node-postgres` well.
+
 ### 2026-08-04 — Step 2: database schema + Drizzle/Neon
 Added Drizzle ORM + Neon serverless deps and `db:*` scripts, `drizzle.config.ts` (migrations
 via the unpooled connection), and `src/db/schema.ts` with all eight tables (`tenants`,
@@ -175,6 +215,8 @@ Newest at the top. Messages are American English, imperative mood.
 
 | Date       | Commit message                                                                 |
 | ---------- | ------------------------------------------------------------------------------ |
+| 2026-08-04 | `feat(tenancy): add tenant-scoped data-access layer with isolation tests`       |
+| 2026-08-04 | `refactor(db): switch to Railway Postgres via node-postgres driver`             |
 | 2026-08-04 | `feat(db): add Drizzle schema and Neon client for core tables`                 |
 | 2026-08-04 | `chore: scaffold Next.js App Router app with TypeScript, Tailwind, ESLint, CI` |
 | 2026-08-04 | `docs: add project plan and development log`                                    |

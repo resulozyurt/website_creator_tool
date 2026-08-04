@@ -5,6 +5,8 @@
 **Date:** 2026-08-04
 
 > **v1.1 revision note.** Stack decisions (Puck, Neon, Drizzle, Vercel) are approved. Direction change: the product is now a **flexible, widget-style builder**, not a site auto-generated from FieldPie data. A tenant's offerings vary too much to seed reliably, so a new site is initialized one of three ways the tenant chooses — **starter template, AI content generation, or blank** — and FieldPie data is at most an optional prefill of low-variance fields. AI content generation lands as **Phase 1.5**. Auth is abstracted and the tenant is decoupled from a FieldPie account.
+>
+> **v1.2 revision note (2026-08-04).** Hosting and Postgres moved to **Railway** (host + database), replacing Vercel and Neon Postgres, at the user's request. **Neon is retained only for object storage + AI gateway.** The DB driver is now `node-postgres` (not the Neon serverless driver). Cloudflare still fronts published sites for CDN and custom domains. Where this document below still says "Vercel" or "Neon Postgres," read it as **Railway**; `DEVELOPMENT_LOG.md` holds the authoritative, current stack.
 **Scope of this document:** End-to-end plan for a multi-tenant website builder that pre-populates tenant sites from existing FieldPie data, comparable to Jobber's website builder.
 
 ---

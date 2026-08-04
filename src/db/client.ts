@@ -1,5 +1,5 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 
 /**
@@ -16,8 +16,11 @@ if (!connectionString) {
   throw new Error("Missing DATABASE_URL. See .env.example.");
 }
 
-const sql = neon(connectionString);
+// Railway Postgres. A single shared connection pool is reused across requests.
+// SSL is controlled via the connection string (e.g. `?sslmode=require`) when the
+// public endpoint requires it; the private/internal URL needs no SSL.
+const pool = new Pool({ connectionString });
 
-export const db = drizzle(sql, { schema });
+export const db = drizzle(pool, { schema });
 
 export type Database = typeof db;
