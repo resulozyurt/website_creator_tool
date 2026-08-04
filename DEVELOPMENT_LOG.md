@@ -24,6 +24,32 @@ commit it alongside the code.
 
 ---
 
+## Manual setup checklist (things only the user can do)
+
+The assistant writes all code. These are the external accounts / commands only the user can
+perform. Check them off as you go.
+
+**One-time, now:**
+
+- [ ] **Push to GitHub** — run the "First push" block under *Git workflow* once.
+- [ ] **Install dependencies** — `npm install` in the project folder.
+
+**Step 2 (database) — needed before anything runs against the DB:**
+
+- [ ] Create a free project at **neon.tech** and a database inside it.
+- [ ] Copy the **pooled** and **direct** connection strings from the Neon dashboard.
+- [ ] Copy `.env.example` → `.env.local`, and paste them into `DATABASE_URL` (pooled) and
+      `DATABASE_URL_UNPOOLED` (direct).
+- [ ] Run `npm run db:generate` then `npm run db:migrate` to create the tables in Neon.
+
+**Later (the assistant will flag each when its step arrives):**
+
+- Vercel project (hosting/deploy), Cloudflare for SaaS account (Phase 2 custom domains),
+  an S3-compatible bucket (media uploads), an AI provider API key (Phase 1.5), and FieldPie
+  API access (optional prefill + lead creation).
+
+---
+
 ## Locked decisions
 
 **Stack (approved):**
@@ -63,11 +89,11 @@ Each step is implemented, logged, and committed on its own. Sub-items are the co
   - [x] `.gitignore`, `.env.example`, README, `src/README.md` module map
   - [x] Feature-module folder structure under `src/`
   - [x] CI workflow (install, lint, typecheck, build)
-- [ ] **Step 2 — Database schema + Drizzle setup**
-  - [ ] Drizzle config + Neon connection (pooled + unpooled)
-  - [ ] Tables: `tenants, templates, sites, pages, blocks, domains, media_assets, publish_states`
-  - [ ] `fieldpie_account_id` nullable; `tenant_id` on every content table
-  - [ ] First migration; finalize field lists
+- [x] **Step 2 — Database schema + Drizzle setup**
+  - [x] Drizzle config + Neon connection (pooled runtime client + unpooled for migrations)
+  - [x] Tables: `tenants, templates, sites, pages, blocks, domains, media_assets, publish_states`
+  - [x] `fieldpie_account_id` nullable; `tenant_id` on every content table; enums; indexes
+  - [ ] First migration SQL — run `npm run db:generate` locally once `DATABASE_URL_UNPOOLED` is set (needs deps installed; not run in the tool sandbox)
 - [ ] **Step 3 — Tenant context + `TenantScopedDb`**
   - [ ] Request-scoped tenant context
   - [ ] `TenantScopedDb` wrapper injecting `tenant_id` on every read/write
@@ -113,6 +139,23 @@ Each step is implemented, logged, and committed on its own. Sub-items are the co
 
 Newest entries at the top.
 
+### 2026-08-04 — Step 2: database schema + Drizzle/Neon
+Added Drizzle ORM + Neon serverless deps and `db:*` scripts, `drizzle.config.ts` (migrations
+via the unpooled connection), and `src/db/schema.ts` with all eight tables (`tenants`,
+`templates`, `sites`, `pages`, `blocks`, `domains`, `media_assets`, `publish_states`), enums,
+indexes, and inferred types. `tenant_id` is on every content table; `fieldpie_account_id` is
+nullable. The raw client (`src/db/client.ts`) is marked internal — only the tenancy layer
+(Step 3) and migration/seed scripts may use it.
+
+**Design refinement (documented, non-blocking):** dropped the plan's `draft_blocks_id` /
+`published_blocks_id` pointer columns on `pages` to avoid a circular FK with `blocks`.
+Instead, a page has one `draft` blocks row (partial-unique on `page_id where kind='draft'`)
+and versioned `published` rows; the live snapshot is the highest-version published row, also
+logged in `publish_states`.
+
+**Not run in the sandbox:** `npm run db:generate` (migration SQL) and `tsc`/build — deps
+aren't installed here. CI verifies these on push; generate the first migration locally.
+
 ### 2026-08-04 — Step 1: project scaffold
 Scaffolded the Next.js App Router project in TypeScript strict mode with the Tailwind
 design-token layer, ESLint/Prettier, a CI workflow, and the feature-module folder structure
@@ -132,6 +175,7 @@ Newest at the top. Messages are American English, imperative mood.
 
 | Date       | Commit message                                                                 |
 | ---------- | ------------------------------------------------------------------------------ |
+| 2026-08-04 | `feat(db): add Drizzle schema and Neon client for core tables`                 |
 | 2026-08-04 | `chore: scaffold Next.js App Router app with TypeScript, Tailwind, ESLint, CI` |
 | 2026-08-04 | `docs: add project plan and development log`                                    |
 
