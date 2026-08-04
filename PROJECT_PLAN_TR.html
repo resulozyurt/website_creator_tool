@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FieldPie Website Builder — Proje Planı</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --surface:#ffffff; --ink:#1a1d29; --muted:#5b6172;
+    --line:#e6e8f0; --brand:#4f46e5; --brand-2:#0ea5a4; --accent:#f59e0b;
+    --ok:#16a34a; --warn:#dc2626; --code-bg:#0f172a; --code-ink:#e2e8f0;
+    --shadow:0 1px 3px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.06);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .layout{display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:start}
+
+  header.hero{background:linear-gradient(135deg,#4f46e5 0%,#0ea5a4 100%);color:#fff;
+    padding:56px 0 46px;position:relative;overflow:hidden}
+  header.hero:after{content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;
+    background:radial-gradient(circle,rgba(255,255,255,.16),transparent 60%);border-radius:50%}
+  .badge-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);
+    color:#fff;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;
+    border:1px solid rgba(255,255,255,.25)}
+  header.hero h1{margin:0 0 10px;font-size:38px;line-height:1.15;letter-spacing:-.5px}
+  header.hero p.sub{margin:0;max-width:760px;font-size:17px;color:rgba(255,255,255,.92)}
+  .lang-switch{position:absolute;top:20px;right:24px;display:flex;gap:6px;z-index:2}
+  .lang-switch a{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;
+    border:1px solid rgba(255,255,255,.4);color:#fff}
+  .lang-switch a.active{background:#fff;color:var(--brand);border-color:#fff}
+  .meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:22px;font-size:13.5px;color:rgba(255,255,255,.9)}
+  .meta b{color:#fff}
+
+  main{padding:40px 0 80px}
+
+  nav.toc{position:sticky;top:24px;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);font-size:14px}
+  nav.toc h4{margin:0 0 12px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  nav.toc ol{list-style:none;margin:0;padding:0;counter-reset:s}
+  nav.toc li{margin:2px 0}
+  nav.toc a{display:block;padding:7px 10px;border-radius:8px;color:var(--ink);counter-increment:s}
+  nav.toc a:before{content:counter(s);display:inline-block;width:22px;color:var(--brand);font-weight:700}
+  nav.toc a:hover{background:#f1f2f9;text-decoration:none}
+
+  section{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 34px;margin-bottom:26px;box-shadow:var(--shadow);scroll-margin-top:20px}
+  section > h2{margin:0 0 6px;font-size:25px;letter-spacing:-.3px;display:flex;align-items:baseline;gap:12px}
+  section > h2 .num{font-size:14px;font-weight:800;color:#fff;background:var(--brand);
+    border-radius:8px;padding:3px 10px;letter-spacing:0}
+  h3{font-size:18.5px;margin:26px 0 8px;color:var(--ink)}
+  h4{font-size:15.5px;margin:18px 0 6px}
+  p{margin:10px 0}
+  .lead{font-size:17px;color:var(--muted)}
+  ul,ol{padding-left:22px}
+  li{margin:6px 0}
+  strong{color:var(--ink)}
+
+  .tbl{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:520px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{background:#f4f5fb;font-weight:700;color:var(--ink)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:nth-child(even){background:#fafbff}
+
+  pre{background:var(--code-bg);color:var(--code-ink);padding:18px 20px;border-radius:12px;
+    overflow-x:auto;font-size:13px;line-height:1.55;
+    font-family:"SF Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:16px 0}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.92em;
+    background:#eef0f8;padding:1.5px 6px;border-radius:6px;color:#3730a3}
+  pre code{background:none;padding:0;color:inherit}
+
+  .rec{border-left:4px solid var(--ok);background:#f0fdf4;padding:12px 16px;border-radius:8px;margin:14px 0}
+  .rec b{color:var(--ok)}
+  .note{border-left:4px solid var(--brand-2);background:#f0fdfa;padding:12px 16px;border-radius:8px;margin:14px 0}
+  .warnbox{border-left:4px solid var(--accent);background:#fffbeb;padding:12px 16px;border-radius:8px;margin:14px 0}
+
+  .chip{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;vertical-align:middle}
+  .chip.win{background:#dcfce7;color:#166534}
+  .chip.alt{background:#f1f5f9;color:#475569}
+
+  .decisions{display:grid;gap:14px}
+  .dcard{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fbfcff;
+    display:flex;gap:14px;align-items:flex-start}
+  .dcard .n{flex:0 0 34px;height:34px;border-radius:10px;background:var(--brand);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800}
+  .dcard h4{margin:0 0 3px}
+  .dcard p{margin:0;font-size:14.5px;color:var(--muted)}
+
+  .status-flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  .st{padding:4px 12px;border-radius:999px;font-size:13px;font-weight:600}
+  .st.p{background:#fef9c3;color:#854d0e}
+  .st.v{background:#dbeafe;color:#1e40af}
+  .st.a{background:#dcfce7;color:#166534}
+  .st.f{background:#fee2e2;color:#991b1b}
+  .arrow{color:var(--muted)}
+
+  footer{color:var(--muted);font-size:13.5px;text-align:center;padding:30px 0 50px}
+
+  @media(max-width:900px){
+    .layout{grid-template-columns:1fr}
+    nav.toc{position:static;margin-bottom:20px}
+    header.hero h1{font-size:30px}
+    section{padding:24px 20px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="lang-switch">
+    <a href="PROJECT_PLAN_EN.html">EN</a>
+    <a href="PROJECT_PLAN_TR.html" class="active">TR</a>
+  </div>
+  <div class="wrap">
+    <div class="badge-row">
+      <span class="pill">● TASLAK — nihai onay bekliyor</span>
+      <span class="pill">Önce plan · henüz kod yok</span>
+      <span class="pill">v1.1 · yığın onaylı</span>
+    </div>
+    <h1>FieldPie Website Builder — Proje Planı</h1>
+    <p class="sub">Her müşterinin sitesini FieldPie'nin halihazırda tuttuğu verilerden otomatik dolduran,
+      tek kod tabanlı, çok kiracılı (multi-tenant) bir web sitesi oluşturucu — Jobber'ın website builder'ıyla kıyaslanabilir.</p>
+    <div class="meta">
+      <span><b>Hazırlayan:</b> Baş Mimar</span>
+      <span><b>Tarih:</b> 04.08.2026</span>
+      <span><b>Kapsam:</b> Uçtan uca plan, uygulama henüz başlamadı</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+<main>
+<div class="layout">
+
+  <nav class="toc">
+    <h4>İçindekiler</h4>
+    <ol>
+      <li><a href="#s0">Yönetici Özeti</a></li>
+      <li><a href="#s1">Teknoloji Yığını &amp; Kararlar</a></li>
+      <li><a href="#s2">Sistem Mimarisi</a></li>
+      <li><a href="#s3">Veritabanı &amp; Kiracı İzolasyonu</a></li>
+      <li><a href="#s4">Özel Alan Adları &amp; SSL</a></li>
+      <li><a href="#s5">Depo Yapısı</a></li>
+      <li><a href="#s6">Faz 1 (MVP) Kapsamı</a></li>
+      <li><a href="#s7">Açık Sorular</a></li>
+      <li><a href="#s8">Karar Kapısı</a></li>
+    </ol>
+  </nav>
+
+  <div>
+
+  <section id="s0">
+    <h2><span class="num">0</span> Yönetici Özeti</h2>
+    <div class="warnbox"><b>v1.1 revizyonu.</b> Yığın kararları (Puck, Neon, Drizzle, Vercel) <strong>onaylandı</strong>. Yön değişikliği: bu artık FieldPie verisinden otomatik üretilen bir site değil, <strong>esnek, widget tarzı bir builder</strong>. Yeni site kiracının seçtiği yolla başlatılır — <strong>şablon, AI veya boş</strong> — FieldPie verisi yalnızca opsiyonel bir ön-doldurma. AI içerik üretimi <strong>Faz 1.5</strong>'e giriyor. Auth soyutlanıyor ve kiracı bir FieldPie hesabından ayrışıyor.</div>
+    <p class="lead"><strong>Tek kod tabanlı, çok kiracılı bir web sitesi oluşturucu</strong> geliştiriyoruz. Tek bir dağıtım (deployment) binlerce kiracının sitesine hizmet veriyor.</p>
+    <p>Her kiracı ücretsiz bir alt alan adı (<code>customer.fieldpie.site</code>) alır; isterse otomatik SSL ile kendi özel alan adını bağlayabilir. Site içeriği statik HTML olarak değil, <strong>yapılandırılmış JSON</strong> olarak saklanır; görsel bir blok editörüyle düzenlenir ve SEO ile performans için sunucu tarafında / statik olarak render edilir. Temel farklılaştırıcı <strong>esnek builder ile hızlı yayına alma</strong>: kiracı, seçilmiş bir blok setinden sürükle-bırak ile sıralayarak, section ekleyip çıkararak ve renk ile fontları tümüyle kontrol ederek sitesini kurar. Soğuk başlangıcı önlemek için yeni bir site üç yolla başlatılır — <strong>başlangıç şablonu seç, AI ile içerik üret veya boştan başla</strong> — kiracı seçer. FieldPie'de düşük değişkenlikli veri (işletme adı, telefon, adres, saatler) varsa <strong>opsiyonel ön-doldurma</strong> yapabiliriz; ama içerik hesaptan otomatik üretilmez, builder ve AI ile oluşturulur — çünkü kiracıların sunumları güvenilir biçimde seed edilemeyecek kadar değişkendir.</p>
+    <p>Önerilen yığın: <strong>Next.js (App Router) + TypeScript strict</strong>, görsel editör olarak <strong>Puck</strong>, Postgres için <strong>Neon</strong>, ORM olarak <strong>Drizzle</strong> ve erken aşama barındırma için, belgelenmiş bir self-host geçiş yolu ile birlikte <strong>Vercel</strong>. Özel alan adları ve SSL için <strong>Cloudflare for SaaS</strong>.</p>
+    <div class="note">Bu plan bilinçli olarak uygulamadan önce durur. Bölüm 8, herhangi bir kod yazılmadan önce onaylamanı istediğim kesin kararları listeler.</div>
+  </section>
+
+  <section id="s1">
+    <h2><span class="num">1</span> Teknoloji Yığını — Öneriler, Ödünleşimler, Kararlar</h2>
+    <p>Her açık karar için bir öneri, gerekçesi, ana ödünleşimi ve onaylamanın bizi neye bağladığını veriyorum. Faz 1 öncesinde en çok kilitlemem gereken dört karar bunlar.</p>
+
+    <h3>1.1 Framework — Next.js App Router + React + TypeScript (strict)</h3>
+    <p>Açık bir karar değil. Next.js App Router bize sunucu bileşenleri, statik üretim, rota bazlı önbellekleme ve middleware sağlar — çok kiracılı site render'ının ihtiyaç duyduğu tam da bu ilkeller. TypeScript strict zorunludur; <code>any</code> kullanımı yazılı gerekçe gerektirir.</p>
+
+    <h3>1.2 Görsel Editör — Puck <span class="chip win">önerilen</span> vs GrapesJS</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Boyut</th><th>Puck</th><th>GrapesJS</th></tr></thead>
+      <tbody>
+        <tr><td>Model</td><td>React-yerel; kendi React bileşenlerini render eder</td><td>Framework'ten bağımsız; iframe içinde HTML/CSS'i işler</td></tr>
+        <tr><td>Çıktı</td><td>Temiz, taşınabilir <strong>JSON</strong> bileşen ağacı</td><td>HTML + CSS metni (artı kendi JSON modeli)</td></tr>
+        <tr><td>Next.js/React uyumu</td><td>Yerel — editör ve çalışma zamanı bileşenleri paylaşır</td><td>Adaptör gerekir; React değil HTML render edersin</td></tr>
+        <tr><td>Tasarım sistemi kontrolü</td><td>Yüksek — izin verilen blokları sen tanımlarsın</td><td>Düşük — serbest HTML/CSS sapmaya davetiye çıkarır</td></tr>
+        <tr><td>Olgunluk/ekosistem</td><td>Daha genç, daha küçük topluluk</td><td>Daha eski, daha büyük, daha çok eklenti</td></tr>
+        <tr><td>Güvenlik yüzeyi</td><td>Yapılandırılmış prop'lar → doğrulaması kolay</td><td>Serbest HTML/CSS → daha geniş yüzey</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rec"><b>Öneri: Puck.</b> Ürünümüz bilinçli olarak kısıtlıdır — serbest bir HTML tuvali değil, seçilmiş bir blok seti (hero, hizmetler, yorumlar, galeri, iletişim). Puck temiz bir JSON ağacı saklar ve <strong>aynı</strong> bileşenler herkese açık siteyi render eder: tek doğruluk kaynağı, güçlü tipleme, küçük ve denetlenebilir bir sanitizasyon yüzeyi.</div>
+    <p><strong>Ana ödünleşim:</strong> Puck daha genç; blok bileşenlerini geliştirme sorumluluğunu daha fazla üstleniyoruz. Blok setimiz küçük olduğu ve zaten sahiplenmek istediğimiz için kabul edilebilir.</p>
+
+    <h3>1.3 Postgres barındırma — Neon <span class="chip win">önerilen</span> vs Supabase</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Boyut</th><th>Neon</th><th>Supabase</th></tr></thead>
+      <tbody>
+        <tr><td>Temel sunum</td><td>Serverless Postgres (oto-ölçekleme, branching)</td><td>Postgres + Auth + Storage + Realtime + RLS</td></tr>
+        <tr><td>DB branching</td><td>Evet — birinci sınıf</td><td>Kısıtlı</td></tr>
+        <tr><td>Auth</td><td>Yok (FieldPie auth kullanıyoruz)</td><td>Dahili (paralel auth <strong>istemiyoruz</strong>)</td></tr>
+        <tr><td>Depolama</td><td>Yok (S3-uyumlu kullanıyoruz)</td><td>Dahili (muhtemelen kullanılmayacak)</td></tr>
+        <tr><td>Serverless/edge uyumu</td><td>Mükemmel</td><td>İyi</td></tr>
+        <tr><td>Bağımlılık (lock-in)</td><td>Düşük — "sadece Postgres"</td><td>Yüksek — değer platformda</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rec"><b>Öneri: Neon.</b> Zaten FieldPie auth (paralel auth yok) ve S3-uyumlu depolama kullanıyoruz — Supabase'i seçmenin en büyük iki nedenini ortadan kaldırıyor. Geriye Postgres kalıyor; Neon daha temiz, daha düşük bağımlılıklı, serverless-yerel ve branching sayesinde migration testlerini daha güvenli kılan seçenek.</div>
+    <div class="note"><b>RLS notu:</b> Neon, ileride savunma katmanı olarak Postgres Row-Level Security eklememizi engellemez. Birincil izolasyon garantimiz uygulama veri erişim katmanıdır; RLS bunun üzerine eklenebilir.</div>
+
+    <h3>1.4 ORM — Drizzle <span class="chip win">önerilen</span> vs Prisma</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Boyut</th><th>Drizzle</th><th>Prisma</th></tr></thead>
+      <tbody>
+        <tr><td>Tarz</td><td>SQL-öncelikli, ince, TS-yerel sorgu kurucu</td><td>Şema-DSL + üretilen istemci</td></tr>
+        <tr><td>Serverless soğuk başlangıç</td><td>Çok hafif; mükemmel</td><td>Daha ağır motor; iyileşiyor</td></tr>
+        <tr><td>Çok kiracılı filtreleme</td><td>Açık SQL → <code>tenant_id</code> zorlaması kolay</td><td>Soyutlama filtreyi gizleyebilir</td></tr>
+        <tr><td>Migration'lar</td><td>drizzle-kit (SQL görünür)</td><td>Prisma Migrate (olgun, cilalı)</td></tr>
+        <tr><td>Ekosistem/olgunluk</td><td>Daha genç, hızlı büyüyen</td><td>Çok olgun, harika DX</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rec"><b>Öneri: Drizzle.</b> SQL-öncelikli, düşük maliyetli, Neon'un serverless sürücüsüyle iyi çalışır ve — <strong>her kiracı kapsamlı sorgunun <code>tenant_id</code> ile filtrelenmesi</strong> yönündeki katı kuralımız için kritik olarak — sorguları açık tutar ve zorunlu bir kiracı kapsamlı veri erişim katmanına sarmayı kolaylaştırır.</div>
+    <p><strong>Ana ödünleşim:</strong> Prisma'nın migration'ları daha olgun ve ekosistemi daha büyük; Drizzle ekibin SQL'e daha yakın çalışmasını ister. Standartlarımız zaten açık ve denetlenebilir veri erişimini önemsiyor.</p>
+
+    <h3>1.5 Barındırma — Şimdi Vercel + belgelenmiş self-host yolu <span class="chip win">önerilen</span></h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Boyut</th><th>Vercel (erken)</th><th>Self-host VPS + Cloudflare CDN (ölçek)</th></tr></thead>
+      <tbody>
+        <tr><td>Yayına alma süresi</td><td>En hızlı — yerel Next.js</td><td>Daha yavaş — operasyonu biz üstleniriz</td></tr>
+        <tr><td>Ölçekte özel alan adları</td><td>Çalışır; alan adı başına maliyet birikir</td><td>Yüksek hacimde alan adı başına daha ucuz</td></tr>
+        <tr><td>Maliyet eğrisi</td><td>Küçükte düşük, trafik/alan adı ile dikleşir</td><td>Başta yüksek, ölçekte daha ucuz</td></tr>
+        <tr><td>Kontrol</td><td>Daha az altyapı kontrolü</td><td>Tam kontrol</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rec"><b>Öneri: Vercel'de başla; self-host geçiş yolunu şimdi belgele (inşa etme).</b> Vercel, Faz 1'i en hızlı yayına alır. Yayınlanan siteler statik üretilip CDN'de önbelleklendiği için ziyaretçi trafiği barındırmadan bağımsız olarak çoğunlukla origin'i atlar; bu da Vercel'in maliyet eğrisini yumuşatır ve ileride yapılacak göçün riskini azaltır.</div>
+  </section>
+
+  <section id="s2">
+    <h2><span class="num">2</span> Üst Düzey Sistem Mimarisi</h2>
+    <p>İki boru hattı önemli: <strong>ziyaretçi okuma yolu</strong> ve <strong>editör → yayınlama yazma yolu</strong>. Üçüncü bir konu — <strong>yeni siteyi başlatma</strong> (şablon, AI veya boş) — onboarding sırasında yazma yolunu besler.</p>
+
+    <h3>2.1 Ziyaretçi istek akışı (hostname → kiracı → içerik → render)</h3>
+<pre>Ziyaretçi
+  │  GET https://acme-plumbing.com/services   (veya acme.fieldpie.site/services)
+  ▼
+CDN edge (önbellek)
+  │  cache HIT  ──────────────► önbellekli statik HTML sun  (origin'e gidilmez)
+  │  cache MISS
+  ▼
+Next.js middleware  ── Host başlığını çözer → kiracı
+  │   1. Host başlığını oku
+  │   2. `domains` tablosunda alan adını bul (özel VEYA *.fieldpie.site)
+  │   3. eşle → tenant_id (+ site_id)
+  │   4. kiracı bağlamını ekle; bilinmeyen host ise 404
+  ▼
+Route handler / Server Component
+  │   5. (tenant_id, path) için YAYINLANMIŞ site + sayfa JSON'unu yükle  [kiracı kapsamlı]
+  │   6. tasarım token'larını (renk/font/logo) çöz → CSS değişkenleri
+  │   7. Puck JSON ağacını → paylaşılan blok bileşenleriyle HTML'e render et
+  │   8. SEO enjekte et (title, meta, OG, LocalBusiness JSON-LD)
+  ▼
+Statik HTML yanıtı  → sonraki ziyaretçiler için CDN edge'de önbelleklenir</pre>
+    <p>Kiracı çözümlemesi middleware'de <strong>bir kez</strong> yapılır; sonraki tüm okumalar kiracı kapsamlıdır; ziyaretçi trafiği CDN'den sunulur; yalnızca <strong>yayınlanmış</strong> durum görünürdür.</p>
+
+    <h3>2.2 Editör → JSON depolama → yayınlama → canlı boru hattı</h3>
+<pre>Kiracı yöneticisi (FieldPie auth/oturum ile kimliği doğrulanmış)
+  │  kendi kiracısı için site editörünü açar
+  ▼
+Editör (Puck)  ── TASLAK sayfa JSON'unu yükler
+  │   blokları düzenler; otomatik kayıt TASLAK'ı yazar  (taslak canlıyı etkilemez)
+  ▼
+Postgres'te `pages`/`blocks` TASLAK durumu  (kiracı kapsamlı, sanitize edilmiş)
+  │  kiracı "Yayınla"ya tıklar
+  ▼
+Yayınlama eylemi
+  │   1. taslak içeriğini doğrula + sanitize et
+  │   2. TASLAK → YAYINLANMIŞ anlık görüntüsünü kopyala (`publish_states`'te sürümlü)
+  │   3. etkilenen statik yolların yeniden doğrulamasını tetikle
+  │   4. bu yollar için CDN önbelleğini temizle
+  ▼
+Canlı site yeni YAYINLANMIŞ anlık görüntüyü sunar</pre>
+    <div class="warnbox"><b>Katı taslak/yayınlanmış ayrımı</b> zorunlu bir gerekliliktir: düzenleme yalnızca taslağa yazar; ziyaretçiler yalnızca son yayınlanmış anlık görüntüyü görür. Yayınlama açık, atomik, sürümlü bir terfi işlemidir (ileride geri alma imkânı sağlar).</div>
+
+    <h3>2.3 Yeni siteyi başlatma (şablon, AI veya boş)</h3>
+    <p>Kiracı bir site oluşturduğunda nasıl başlayacağını seçer. Boş sayfa dayatmayız ama sitenin tamamının FieldPie verisinden türetilebileceğini de varsaymayız — kiracıdan kiracıya sunumlar çok değişir. Üç stratejinin hepsi <strong>aynı block-JSON modelinde düzenlenebilir bir taslak</strong> üretir; böylece sonrasındaki her şey (editör, yayınlama, render) aynıdır:</p>
+<pre>Kiracı bir başlangıç stratejisi seçer
+  │
+  ├─ (a) Başlangıç şablonu → sektör/stil şablonu seç
+  │                          → hazır section düzeni TASLAK olarak yüklenir
+  │
+  ├─ (b) AI içerik üretimi  → kısa giriş (işletme türü, hizmetler, ton)
+  │                          → AI, section metinlerini + önerilen düzeni
+  │                            TASLAK olarak üretir; section'lar tek tek yenilenir
+  │
+  └─ (c) Boş               → boş tuval; blok kataloğundan section ekle
+
+Opsiyonel ön-doldurma (her stratejide, veri varsa):
+  FieldPie düşük değişkenlikli alanlar ──► işletme adı, telefon, adres, saatler
+                                          → İletişim bloğu + LocalBusiness şeması</pre>
+    <p>Başlatmadan sonra kiracı aynı <strong>esnek builder</strong>'da çalışır: section'ları sürükle-bırak ile sırala, blokları widget gibi ekle/çıkar, fotoğrafları değiştir, metinleri düzenle ve renk ile fontları design token'larla ayarla — sonra alan adını bağla ve yayınla. İletişim/talep formları bağlıysa FieldPie'de <strong>lead oluşturur</strong> (değilse dahili lead). AI üretimi <strong>Faz 1.5</strong>'te gelir; Faz 1 şablon + boş + tam esnek builder'ı sağlar.</p>
+  </section>
+
+  <section id="s3">
+    <h2><span class="num">3</span> Veritabanı Şeması &amp; Kiracı İzolasyonu</h2>
+    <p>Postgres birincil depodur. İçerik <code>blocks</code>/<code>pages</code> içinde yapılandırılmış JSON olarak yaşar. Aşağıdaki alan listeleri göstergeseldir ve Faz 1, madde 2'de kesinleştirilecektir.</p>
+
+    <h3>3.1 Çekirdek tablolar</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Tablo</th><th>Amaç</th><th>Anahtar alanlar</th></tr></thead>
+      <tbody>
+        <tr><td><code>tenants</code></td><td>Builder müşterisi başına bir satır (zorunlu olarak FieldPie hesabı değil)</td><td>id, fieldpie_account_id (<strong>nullable</strong>), name, status, timestamps</td></tr>
+        <tr><td><code>templates</code></td><td>"Şablon seç" yolu için yeniden kullanılabilir başlangıç düzenleri</td><td>id, name, industry, thumbnail_url, blocks (jsonb), is_system</td></tr>
+        <tr><td><code>sites</code></td><td>Kiracı başına bir site (ileride &gt;1)</td><td>id, tenant_id, name, default_locale, theme_tokens (jsonb), seo_defaults (jsonb)</td></tr>
+        <tr><td><code>pages</code></td><td>Site içindeki sayfalar</td><td>id, tenant_id, site_id, path, title, seo (jsonb), draft_blocks_id, published_blocks_id</td></tr>
+        <tr><td><code>blocks</code></td><td>Puck JSON ağacı, sürümlü (içerik)</td><td>id, tenant_id, page_id, content (jsonb), kind (draft|published), version</td></tr>
+        <tr><td><code>domains</code></td><td>Hostname → kiracı/site eşlemesi</td><td>id, tenant_id, site_id, hostname (unique), type (subdomain|custom), verification_status, cloudflare_hostname_id, ssl_status, is_primary</td></tr>
+        <tr><td><code>media_assets</code></td><td>S3-uyumlu depolamaya referanslar</td><td>id, tenant_id, site_id, storage_key, url, alt_text, boyutlar, mime_type, source (fieldpie|upload)</td></tr>
+        <tr><td><code>publish_states</code></td><td>Yayınlamaların denetim/sürüm günlüğü</td><td>id, tenant_id, site_id, page_id, published_blocks_id, published_by, published_at, note</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3.2 İlişkiler</h3>
+    <p><code>tenants 1─* sites 1─* pages 1─* blocks</code>; <code>sites 1─* domains</code>; <code>sites 1─* media_assets</code>; <code>pages 1─* publish_states</code>. <strong>Her</strong> içerik tablosu <code>tenant_id</code>'yi doğrudan taşır (bilinçli denormalizasyon) — böylece izolasyon asla bir join'in doğruluğuna bağlı olmaz.</p>
+
+    <h3>3.3 Kiracı izolasyon stratejisi (güvenlik gereksinimi)</h3>
+    <ol>
+      <li><strong>Veri erişim katmanı (birincil kontrol).</strong> Tüm kiracı verisi, bir <code>tenant_id</code> ile oluşturulan ve <strong>her okuma ve yazmaya <code>WHERE tenant_id = $current</code> enjekte eden</strong> tek bir <code>TenantScopedDb</code> sarmalayıcıdan geçer. Uygulama kodu içerik tablolarını doğrudan sorgulayamaz. Kiracı kapsamı olmadan bir kiracı tablosuna dokunan herhangi bir sorgu, lint/kod inceleme hatasıdır.</li>
+      <li><strong>İstek bağlamı.</strong> Middleware kiracıyı bir kez çözer ve değişmez bir kiracı bağlamı kurar. Yönetici/editör rotalarında kiracı, FieldPie ile kimliği doğrulanmış oturumdan türetilir; kiracılar arası erişim reddedilir.</li>
+      <li><strong>Veritabanı RLS (opsiyonel sertleştirme, sonra).</strong> Düz Postgres'te (Neon) bir oturum değişkenine bağlı Row-Level Security ekleyebiliriz. Faz 3 için önerilir, Faz 1 için gerekli değildir.</li>
+    </ol>
+    <p>Ek kurallar: <code>tenant_id</code> ve kişisel veri URL parametrelerinde asla görünmez; kullanıcı tarafından oluşturulan içerik depolamadan önce ve render'da tekrar sanitize edilir; medya erişimi kiracı kapsamlıdır.</p>
+  </section>
+
+  <section id="s4">
+    <h2><span class="num">4</span> Özel Alan Adları &amp; SSL (Cloudflare for SaaS)</h2>
+
+    <h3>4.1 Ücretsiz alt alan adı: <code>*.fieldpie.site</code> (wildcard)</h3>
+    <p>Tüm alt alan adlarını kapsayan bir <strong>wildcard DNS kaydı</strong> ve bir <strong>wildcard TLS sertifikası</strong> sağlarız. Kiracı oluşturulduğunda bir <code>domains</code> satırı ekleriz (<code>type = subdomain</code>, <code>verification_status = active</code> anında — kiracı başına DNS veya sertifika işi yok). Sıfır sürtünme, onboarding anında hazır.</p>
+
+    <h3>4.2 Kendi alan adını getir (BYO): Cloudflare for SaaS (custom hostnames)</h3>
+<pre>1. Kiracı builder'da özel alan adını girer.
+2. Cloudflare for SaaS "custom hostname" API'sini çağırırız → bölgemiz altında
+   bir custom hostname oluşur; cloudflare_hostname_id saklanır, status = pending.
+3. Kayıt sağlayıcısına eklenecek DNS kayıtlarını gösteririz:
+     - bir CNAME (alan adları → Cloudflare SaaS hedefimiz) ve
+     - sertifika için bir domain-control-validation (DCV) kaydı.
+4. Kiracı kayıtları DNS sağlayıcısına ekler.
+5. Cloudflare sahipliği (DCV) doğrular ve SSL'i otomatik verir/yeniler.
+6. Durumu yoklarız / alırız → hostname + sertifika aktif olunca,
+   verification_status = active, ssl_status = active olarak ayarlanır.
+7. Middleware artık özel alan adını → kiracıya çözer; CDN HTTPS üzerinden sunar.
+8. Sertifika yenileme otomatiktir (Cloudflare yönetir) — kiracı işlemi gerekmez.</pre>
+    <p>Cloudflare for SaaS tam da bunun için tasarlanmıştır: altyapımız altında TLS sonlandıran, otomatik verme ve yenilemeli, binlerce müşteri sahipli hostname.</p>
+
+    <h3>4.3 Doğrulama deneyimi (UX)</h3>
+    <p>Builder her özel alan adı için bir <strong>alan adı durum paneli</strong> gösterir: kopyala düğmeli tam DNS kayıtları, canlı durum rozeti, Cloudflare'i yoklayan bir "Yeniden kontrol et" düğmesi ve yaygın kayıt sağlayıcı hataları için yardım metni. Alt alan adları anında <span class="st a">Aktif</span> görünür.</p>
+    <div class="status-flow">
+      <span class="st p">Beklemede</span><span class="arrow">→</span>
+      <span class="st v">Doğrulanıyor</span><span class="arrow">→</span>
+      <span class="st a">Aktif</span><span class="arrow">/</span>
+      <span class="st f">Başarısız (nedeniyle)</span>
+    </div>
+  </section>
+
+  <section id="s5">
+    <h2><span class="num">5</span> Depo Yapısı &amp; Modül Sınırları</h2>
+    <p>Özellik bazlı modül sınırlarına sahip tek bir Next.js deposu (App Router, TypeScript):</p>
+<pre>fieldpie-website-builder/
+├─ app/
+│  ├─ (public)/                 # herkese açık kiracı sitesi render (SSR/SSG)
+│  │  └─ [[...path]]/           # catch-all: kiracı middleware ile çözülür
+│  ├─ (admin)/                  # kimlik doğrulamalı builder/editör UI (auth adaptörü)
+│  │  ├─ start/                 # yeni site başlatma: şablon / AI / boş seçici
+│  │  ├─ editor/                # Puck editör (sürükle-bırak, section ekle/çıkar)
+│  │  ├─ domains/               # özel alan adı + doğrulama UX
+│  │  └─ settings/              # marka/tema (renk, font), SEO varsayılanları
+│  ├─ api/                      # route handler'lar (publish, form→lead, domains)
+│  ├─ sitemap.xml/route.ts      # kiracı başına sitemap
+│  └─ robots.txt/route.ts
+├─ middleware.ts                # hostname → kiracı çözümlemesi
+├─ src/
+│  ├─ blocks/                   # Puck blok kataloğu (hero, services, reviews, gallery, contact)
+│  ├─ editor/                   # Puck yapılandırması, blok kaydı
+│  ├─ rendering/                # JSON ağacı → HTML, tema-token → CSS-değişken
+│  ├─ tenancy/                  # kiracı bağlamı, hostname çözücü, TenantScopedDb
+│  ├─ db/                       # Drizzle şeması, migration'lar, sorgu modülleri
+│  ├─ domains/                  # Cloudflare-for-SaaS istemcisi, doğrulama durum makinesi
+│  ├─ site-init/               # başlatma stratejileri: şablon yükleyici, ön-doldurma, boş
+│  ├─ templates/                # başlangıç şablonu kataloğu + küçük görseller
+│  ├─ ai/                       # AI içerik üretimi (Faz 1.5): prompt'lar, guardrail'ler
+│  ├─ auth/                     # auth adaptörü (FieldPie oturumu + kendi kaydına yer)
+│  ├─ fieldpie/                 # FieldPie API adaptörü (opsiyonel ön-doldurma + lead)
+│  ├─ seo/                      # title/meta/OG/JSON-LD/sitemap iskelesi
+│  ├─ media/                    # S3-uyumlu depolama istemcisi, görsel işleme
+│  ├─ publish/                  # taslak→yayınlanmış terfi, revalidate + purge
+│  ├─ security/                 # sanitizasyon (DOMPurify), girdi doğrulama
+│  └─ shared/                   # tipler, yardımcılar, tasarım token'ları
+├─ tests/                       # kiracı çözümleme, yayınlama akışı, alan adı doğrulama
+└─ README.md                    # ne yapar + nasıl çalıştırılır/test edilir (American English)</pre>
+    <p><strong>Önemli sınırlar:</strong> <code>tenancy</code> kiracı bağlamını kuran ve <code>TenantScopedDb</code>'ye sahip olan tek modüldür; diğer her şey ham değil, kiracı kapsamlı bir db alır. <code>blocks</code>, <code>editor</code> ile <code>rendering</code> arasında paylaşılır — tek tanım, iki tüketici. <code>auth</code>, FieldPie oturum entegrasyonunu destekleyen ve kendi kayıt akışına yer bırakan bir <strong>adaptördür</strong>. <code>fieldpie</code>, opsiyonel ön-doldurma ve lead oluşturma için kullanılan, bizi FieldPie'nin iç veri modelinden yalıtan bir <strong>adaptördür</strong>. <code>site-init</code> üç başlangıç stratejisini yönetir ama diğer her şeyle aynı block-JSON'u yazar. <code>ai</code> (Faz 1.5), LLM sağlayıcısı ve prompt'lar bağımsız gelişebilsin diye kendi modülünde yalıtılmıştır. <code>publish</code>, yayınlanmış durumun tek yazarıdır. <code>security</code>, sanitizasyonu tek bir denetim noktasında merkezileştirir.</p>
+  </section>
+
+  <section id="s6">
+    <h2><span class="num">6</span> Faz 1 (MVP) — Sıralı İş Kalemleri</h2>
+    <p>Kapsam: <strong>yalnızca alt alan adı</strong> siteleri, <strong>esnek builder</strong> (sürükle-bırak sıralama, section ekle/çıkar, renk/font kontrolü), küçük bir blok seti, <strong>şablon veya boş</strong> ile başlatma (AI Faz 1.5), ve lead oluşturan bir talep formu. Özel alan adları <strong>Faz 2</strong>'dir ve buraya dahil değildir. Her kalem, kendi adımı olarak planlanacak, onaylanacak ve uygulanacak boyuttadır.</p>
+    <h4>Faz 1 (MVP)</h4>
+    <ol>
+      <li><strong>Proje iskeleti + standartlar.</strong> Next.js App Router + TS strict, Tailwind + tasarım token'ları, lint/format, CI, README taslağı. Ürün mantığı yok.</li>
+      <li><strong>Veritabanı şeması + Drizzle kurulumu.</strong> Sekiz tabloyu uygula (<code>templates</code> dahil); drizzle-kit migration'ları; Neon'a bağlan. Alan listelerini kesinleştir.</li>
+      <li><strong>Kiracı bağlamı + <code>TenantScopedDb</code>.</strong> İzolasyon sarmalayıcısı + istek kapsamlı bağlam; kiracılar arası erişimin imkânsız olduğunu kanıtlayan testlerle.</li>
+      <li><strong>Hostname → kiracı middleware (alt alan adı).</strong> <code>*.fieldpie.site</code>'ı çöz; bilinmeyen host'lara 404; wildcard alt alan adı + sertifika yapılandırıldı.</li>
+      <li><strong>Blok kataloğu v1 + temalama.</strong> Hero, Services, Reviews, Gallery, Contact; editör ve çalışma zamanında kullanılabilir, CSS değişkenleriyle temalanan (kiracı bazlı renk/font) tipli React bileşenleri.</li>
+      <li><strong>Herkese açık render yolu (SSR/SSG).</strong> Yayınlanmış JSON → HTML; SEO iskelesi (title, meta, OG, LocalBusiness JSON-LD, sitemap, robots) ve CDN önbellekleme ile.</li>
+      <li><strong>Esnek Puck editörü (taslak).</strong> Blok kataloğunu kaydet; <strong>sürükle-bırak sıralama, section ekle/çıkar, renk/font kontrolleri</strong>; taslak JSON'u yükle/kaydet; otomatik kayıt; katı taslak/yayınlanmış ayrımı.</li>
+      <li><strong>Yayınlama akışı.</strong> Atomik taslak→yayınlanmış terfi, sürümlü; talep üzerine yeniden doğrulama + CDN purge.</li>
+      <li><strong>Site başlatma (şablon + boş) + başlangıç seçici.</strong> Yeni site akışı: başlangıç şablonu seç veya boştan başla, ikisi de düzenlenebilir taslak üretir; bağlıysa iletişim alanlarının opsiyonel FieldPie ön-doldurması.</li>
+      <li><strong>Talep formu → lead.</strong> İletişim bloğu gönderir, sanitize/doğrula edilir, lead oluşturur (bağlıysa FieldPie adaptörüyle; değilse dahili lead).</li>
+      <li><strong>Auth soyutlama + kiracı sağlama.</strong> FieldPie oturumunu destekleyen, kendi kaydına yer bırakan auth adaptörü; kiracı FieldPie hesabından bağımsız sağlanır (<code>fieldpie_account_id</code> opsiyonel); kiracılar arası erişimi reddet.</li>
+      <li><strong>MVP sertleştirme + testler + README.</strong> Kritik yol testleri, WCAG AA + mobil öncelikli, performans bütçesi (LCP, görseller), American-English çalıştırma/test notları.</li>
+    </ol>
+    <h4>Faz 1.5 — AI içerik üretimi</h4>
+    <p>Kısa bir girişten (işletme türü, hizmetler, ton) section metinleri ve önerilen bir düzen üreten, <strong>section bazlı yeniden üretim</strong> destekleyen bir AI servisi. Yeni <code>src/ai</code> modülü: LLM sağlayıcı, prompt tasarımı, maliyet kontrolleri, içerik guardrail/sanitizasyonu. Esnek builder'ın hemen ardından verilir ki AI kanıtlanmış bir blok modeline yazsın.</p>
+    <p><strong>Önerilen sıra:</strong> 1 → 2 → 3 → 4, sonra 5 → 6, sonra 7 → 8, sonra 9/10/11, sonra 12, sonra Faz 1.5. Her kalem yine tek tek onay kapısından geçer.</p>
+  </section>
+
+  <section id="s7">
+    <h2><span class="num">7</span> Açık Sorular &amp; Varsayımlar</h2>
+    <div class="rec"><b>v1.1'de çözüldü (kilitli):</b> site başlatma <strong>şablon / AI / boş, kiracının seçimi</strong>; builder tümüyle esnek (sürükle-bırak, section ekle/çıkar, renk/font kontrolü); <strong>AI Faz 1.5</strong>; auth <strong>soyutlanmış</strong> ve kiracı bir FieldPie hesabından <strong>ayrışmış</strong> (<code>fieldpie_account_id</code> opsiyonel) — böylece builder ileride FieldPie dışı kullanıcılara yeniden yazım olmadan açılabilir.</div>
+    <h3>Varsayımlar (yanlışsam düzelt)</h3>
+    <ul>
+      <li>FieldPie, <em>bir kiracı bağlıyken</em>, <strong>lead oluşturmak</strong> ve opsiyonel ön-doldurma için <strong>düşük değişkenlikli iletişim alanlarını</strong> (ad, telefon, adres, saatler) okumak üzere bir API sunabilir. Tam hizmet/bölge/yorum seed'i <strong>artık varsayılmıyor</strong>.</li>
+      <li>FieldPie'nin auth adaptörüyle entegre olacağımız bir auth/oturum sistemi var — ileride kendi kayıt akışımıza da yer bırakıyoruz.</li>
+      <li><code>fieldpie.site</code>'ı kontrol ediyoruz (veya edinebiliriz) ve wildcard DNS + wildcard TLS kurabiliriz.</li>
+      <li><strong>Cloudflare for SaaS</strong>'a uygun bir Cloudflare hesabımız ve <strong>S3-uyumlu</strong> bir nesne deposu var.</li>
+      <li>Faz 1 için kiracı başına bir site (şema ileride fazlasına izin verir).</li>
+    </ul>
+    <h3>Açık sorular (faydalı ama çekirdek inşayı artık bloke etmiyor)</h3>
+    <ol>
+      <li><strong>FieldPie ön-doldurma + lead API.</strong> Bağlı bir kiracı için hangi alanları ön-doldurma için okuyabiliriz ve <strong>lead oluşturmanın</strong> API/şekli/auth'u nedir? (madde 9–10 + <code>fieldpie</code> adaptörü)</li>
+      <li><strong>Auth detayları.</strong> Oturum çerezi / JWT / SSO — adaptörü kurabilmemiz için. Sadece-FieldPie mi açık kayıt mı henüz bağlanmadık. (madde 11)</li>
+      <li><strong>AI sağlayıcı &amp; bütçe (Faz 1.5).</strong> Tercih edilen LLM sağlayıcı/model, üretim başına maliyet tavanı ve AI metnine dair içerik/uyumluluk kısıtları?</li>
+      <li><strong>Alan adı &amp; altyapı sahipliği.</strong> Builder alan adı mevcut mu? Cloudflare-for-SaaS ve S3-uyumlu hesaplar var mı, yoksa tedariki de dahil edeyim mi?</li>
+      <li><strong>Şablonlar &amp; tema özgürlüğü.</strong> MVP için kaç başlangıç şablonu, hangi sektörler ve ne kadar tema özgürlüğü (sabit paletler mi, serbest renk/font mu)? FieldPie marka kiti var mı?</li>
+      <li><strong>Ölçek &amp; maliyet hedefleri.</strong> İlk yıl beklenen kiracı/özel alan adı sayısı? Self-host yolunun ne zaman gündeme geleceğini belirler.</li>
+      <li><strong>Uyumluluk/veri yerleşimi.</strong> DB bölgesini ve depolamayı etkileyen bölgesel veri yerleşimi / PII gereksinimleri var mı?</li>
+    </ol>
+  </section>
+
+  <section id="s8">
+    <h2><span class="num">8</span> Karar Kapısı — Onaylaman Gerekenler</h2>
+    <h3>Yığın kararları — <span class="chip win">onaylandı</span></h3>
+    <div class="decisions">
+      <div class="dcard"><div class="n">1</div><div><h4>Editör: Puck <span class="chip win">onaylandı</span></h4><p>Esnek sürükle-bırak / section ekle-çıkar vizyonu bu seçimi güçlendiriyor.</p></div></div>
+      <div class="dcard"><div class="n">2</div><div><h4>Postgres: Neon <span class="chip win">onaylandı</span></h4><p>Düşük bağımlılık, serverless-yerel, branching.</p></div></div>
+      <div class="dcard"><div class="n">3</div><div><h4>ORM: Drizzle <span class="chip win">onaylandı</span></h4><p>SQL-öncelikli, hafif, zorunlu <code>tenant_id</code> filtresini açık kılar.</p></div></div>
+      <div class="dcard"><div class="n">4</div><div><h4>Barındırma: Vercel + self-host yolu <span class="chip win">onaylandı</span></h4><p>En hızlı yayına alma; statik + CDN maliyeti yumuşatır; self-host planlı kaldıraç.</p></div></div>
+    </div>
+    <h3>Yön kararları — <span class="chip win">teyit edildi</span></h3>
+    <div class="decisions">
+      <div class="dcard"><div class="n">✓</div><div><h4>Site başlatma: şablon / AI / boş</h4><p>Kiracının seçimi; üçü de aynı block-JSON'u yazar.</p></div></div>
+      <div class="dcard"><div class="n">✓</div><div><h4>AI içerik üretimi: Faz 1.5</h4><p>Esnek builder'ın hemen ardından gelir.</p></div></div>
+      <div class="dcard"><div class="n">✓</div><div><h4>Auth soyut; kiracı FieldPie'den ayrık</h4><p>İleride FieldPie dışı kullanıcılara yeniden yazımsız açılabilir.</p></div></div>
+    </div>
+    <h3>Onaylanacak kalan kapsam &amp; yaklaşım</h3>
+    <div class="decisions">
+      <div class="dcard"><div class="n">5</div><div><h4>Faz 1 kapsamı (Bölüm 6)</h4><p>Yalnızca alt alan adı, esnek builder, şablon + boş başlatma, form→lead; AI Faz 1.5; özel alan adları Faz 2. Onay / düzeltme?</p></div></div>
+      <div class="dcard"><div class="n">6</div><div><h4>Kiracı izolasyon stratejisi (Bölüm 3.3)</h4><p>Uygulama katmanı <code>TenantScopedDb</code> birincil; RLS sonradan sertleştirme. Onay?</p></div></div>
+      <div class="dcard"><div class="n">7</div><div><h4>Veritabanı şeması (Bölüm 3)</h4><p>Artık <code>templates</code> ve opsiyonel <code>fieldpie_account_id</code> dahil. Temel olarak onay?</p></div></div>
+      <div class="dcard"><div class="n">8</div><div><h4>İlerleme sırası (Bölüm 6)</h4><p>Her seferinde tek onaylı adım, madde 1'den (proje iskeleti) başlayarak. Başlangıç noktası onayı?</p></div></div>
+    </div>
+    <div class="warnbox">5–8 kalemlerini onayladığında, Faz 1 madde 1 (proje iskeleti) için detaylı adım planını yazıp yine onay için duracağım. Bundan önce hiçbir uygulama başlamaz.</div>
+  </section>
+
+  </div>
+</div>
+</main>
+</div>
+
+<footer>FieldPie Website Builder · Proje Planı v1.1 · 04.08.2026 hazırlandı · TASLAK — nihai onay bekliyor</footer>
+
+</body>
+</html>

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FieldPie Website Builder — Project Plan</title>
+<style>
+  :root{
+    --bg:#f6f7fb; --surface:#ffffff; --ink:#1a1d29; --muted:#5b6172;
+    --line:#e6e8f0; --brand:#4f46e5; --brand-2:#0ea5a4; --accent:#f59e0b;
+    --ok:#16a34a; --warn:#dc2626; --code-bg:#0f172a; --code-ink:#e2e8f0;
+    --shadow:0 1px 3px rgba(16,24,40,.06),0 8px 24px rgba(16,24,40,.06);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.65;font-size:16px;-webkit-font-smoothing:antialiased}
+  a{color:var(--brand);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .layout{display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:start}
+
+  /* Hero */
+  header.hero{background:linear-gradient(135deg,#4f46e5 0%,#0ea5a4 100%);color:#fff;
+    padding:56px 0 46px;position:relative;overflow:hidden}
+  header.hero:after{content:"";position:absolute;right:-80px;top:-80px;width:320px;height:320px;
+    background:radial-gradient(circle,rgba(255,255,255,.16),transparent 60%);border-radius:50%}
+  .badge-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .pill{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.16);
+    color:#fff;padding:5px 12px;border-radius:999px;font-size:13px;font-weight:600;
+    border:1px solid rgba(255,255,255,.25)}
+  header.hero h1{margin:0 0 10px;font-size:38px;line-height:1.15;letter-spacing:-.5px}
+  header.hero p.sub{margin:0;max-width:760px;font-size:17px;color:rgba(255,255,255,.92)}
+  .lang-switch{position:absolute;top:20px;right:24px;display:flex;gap:6px;z-index:2}
+  .lang-switch a{padding:6px 12px;border-radius:999px;font-size:13px;font-weight:600;
+    border:1px solid rgba(255,255,255,.4);color:#fff}
+  .lang-switch a.active{background:#fff;color:var(--brand);border-color:#fff}
+  .meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:22px;font-size:13.5px;color:rgba(255,255,255,.9)}
+  .meta b{color:#fff}
+
+  main{padding:40px 0 80px}
+
+  /* Sidebar */
+  nav.toc{position:sticky;top:24px;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);font-size:14px}
+  nav.toc h4{margin:0 0 12px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+  nav.toc ol{list-style:none;margin:0;padding:0;counter-reset:s}
+  nav.toc li{margin:2px 0}
+  nav.toc a{display:block;padding:7px 10px;border-radius:8px;color:var(--ink);counter-increment:s}
+  nav.toc a:before{content:counter(s);display:inline-block;width:22px;color:var(--brand);font-weight:700}
+  nav.toc a:hover{background:#f1f2f9;text-decoration:none}
+
+  /* Content */
+  section{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:30px 34px;margin-bottom:26px;box-shadow:var(--shadow);scroll-margin-top:20px}
+  section > h2{margin:0 0 6px;font-size:25px;letter-spacing:-.3px;display:flex;align-items:baseline;gap:12px}
+  section > h2 .num{font-size:14px;font-weight:800;color:#fff;background:var(--brand);
+    border-radius:8px;padding:3px 10px;letter-spacing:0}
+  h3{font-size:18.5px;margin:26px 0 8px;color:var(--ink)}
+  h4{font-size:15.5px;margin:18px 0 6px}
+  p{margin:10px 0}
+  .lead{font-size:17px;color:var(--muted)}
+  ul,ol{padding-left:22px}
+  li{margin:6px 0}
+  strong{color:var(--ink)}
+
+  /* Tables */
+  .tbl{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:520px}
+  th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  thead th{background:#f4f5fb;font-weight:700;color:var(--ink)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr:nth-child(even){background:#fafbff}
+
+  /* Diagram / code blocks */
+  pre{background:var(--code-bg);color:var(--code-ink);padding:18px 20px;border-radius:12px;
+    overflow-x:auto;font-size:13px;line-height:1.55;
+    font-family:"SF Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin:16px 0}
+  code{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:.92em;
+    background:#eef0f8;padding:1.5px 6px;border-radius:6px;color:#3730a3}
+  pre code{background:none;padding:0;color:inherit}
+
+  /* Callouts */
+  .rec{border-left:4px solid var(--ok);background:#f0fdf4;padding:12px 16px;border-radius:8px;margin:14px 0}
+  .rec b{color:var(--ok)}
+  .note{border-left:4px solid var(--brand-2);background:#f0fdfa;padding:12px 16px;border-radius:8px;margin:14px 0}
+  .warnbox{border-left:4px solid var(--accent);background:#fffbeb;padding:12px 16px;border-radius:8px;margin:14px 0}
+
+  .chip{display:inline-block;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;vertical-align:middle}
+  .chip.win{background:#dcfce7;color:#166534}
+  .chip.alt{background:#f1f5f9;color:#475569}
+
+  /* Decision cards */
+  .decisions{display:grid;gap:14px}
+  .dcard{border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fbfcff;
+    display:flex;gap:14px;align-items:flex-start}
+  .dcard .n{flex:0 0 34px;height:34px;border-radius:10px;background:var(--brand);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:800}
+  .dcard h4{margin:0 0 3px}
+  .dcard p{margin:0;font-size:14.5px;color:var(--muted)}
+
+  .status-flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0}
+  .st{padding:4px 12px;border-radius:999px;font-size:13px;font-weight:600}
+  .st.p{background:#fef9c3;color:#854d0e}
+  .st.v{background:#dbeafe;color:#1e40af}
+  .st.a{background:#dcfce7;color:#166534}
+  .st.f{background:#fee2e2;color:#991b1b}
+  .arrow{color:var(--muted)}
+
+  footer{color:var(--muted);font-size:13.5px;text-align:center;padding:30px 0 50px}
+
+  @media(max-width:900px){
+    .layout{grid-template-columns:1fr}
+    nav.toc{position:static;margin-bottom:20px}
+    header.hero h1{font-size:30px}
+    section{padding:24px 20px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="lang-switch">
+    <a href="PROJECT_PLAN_EN.html" class="active">EN</a>
+    <a href="PROJECT_PLAN_TR.html">TR</a>
+  </div>
+  <div class="wrap">
+    <div class="badge-row">
+      <span class="pill">● DRAFT — awaiting final approval</span>
+      <span class="pill">Plan-first · no code yet</span>
+      <span class="pill">v1.1 · stack approved</span>
+    </div>
+    <h1>FieldPie Website Builder — Project Plan</h1>
+    <p class="sub">A single-codebase, multi-tenant website builder that pre-populates each tenant's site
+      from data FieldPie already holds — comparable to Jobber's website builder.</p>
+    <div class="meta">
+      <span><b>Author:</b> Lead Architect</span>
+      <span><b>Date:</b> 2026-08-04</span>
+      <span><b>Scope:</b> End-to-end plan, implementation not started</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+<main>
+<div class="layout">
+
+  <nav class="toc">
+    <h4>Contents</h4>
+    <ol>
+      <li><a href="#s0">Executive Summary</a></li>
+      <li><a href="#s1">Tech Stack &amp; Decisions</a></li>
+      <li><a href="#s2">System Architecture</a></li>
+      <li><a href="#s3">Database &amp; Tenant Isolation</a></li>
+      <li><a href="#s4">Custom Domains &amp; SSL</a></li>
+      <li><a href="#s5">Repo Structure</a></li>
+      <li><a href="#s6">Phase 1 (MVP) Scope</a></li>
+      <li><a href="#s7">Open Questions</a></li>
+      <li><a href="#s8">Decision Gate</a></li>
+    </ol>
+  </nav>
+
+  <div>
+
+  <section id="s0">
+    <h2><span class="num">0</span> Executive Summary</h2>
+    <div class="warnbox"><b>v1.1 revision.</b> Stack decisions (Puck, Neon, Drizzle, Vercel) are <strong>approved</strong>. Direction change: this is a <strong>flexible, widget-style builder</strong>, not a site auto-generated from FieldPie data. A new site is initialized the tenant's way — <strong>template, AI, or blank</strong> — with FieldPie data as an optional prefill only. AI content generation lands as <strong>Phase 1.5</strong>. Auth is abstracted and the tenant is decoupled from a FieldPie account.</div>
+    <p class="lead">We are building a <strong>single-codebase, multi-tenant website builder</strong>. One deployment serves thousands of tenant sites.</p>
+    <p>Each tenant gets a free subdomain (<code>customer.fieldpie.site</code>) and can optionally connect a custom domain with automatic SSL. Site content is stored as <strong>structured JSON</strong> (not static HTML), edited through a visual block editor, and rendered server-side / statically for SEO and performance. The key differentiator is <strong>speed-to-live through a flexible builder</strong>: the tenant assembles a site from a curated block set with drag-and-drop reordering, add/remove sections, and full control of colors and fonts. To avoid a cold start, a new site is initialized three ways — <strong>pick a starter template, generate content with AI, or start blank</strong> — the tenant chooses. Where FieldPie holds low-variance data (business name, phone, address, hours) we can <strong>optionally prefill</strong> it, but content is driven by the builder and AI, not auto-generated from the account, because a tenant's offerings vary too much to seed reliably.</p>
+    <p>The recommended stack: <strong>Next.js (App Router) + TypeScript strict</strong>, <strong>Puck</strong> as the visual editor, <strong>Neon</strong> for Postgres, <strong>Drizzle</strong> as the ORM, and <strong>Vercel</strong> for early-stage hosting with a documented self-host migration path. <strong>Cloudflare for SaaS</strong> handles custom hostnames and SSL.</p>
+    <div class="note">This plan deliberately stops before implementation. Section 8 lists the exact decisions I need you to confirm before any code is written.</div>
+  </section>
+
+  <section id="s1">
+    <h2><span class="num">1</span> Tech Stack — Recommendations, Tradeoffs, Decisions</h2>
+    <p>For each open decision I give a recommendation, the reasoning, the main tradeoff, and what confirming it commits us to. These are the four decisions I most need locked before Phase 1.</p>
+
+    <h3>1.1 Framework — Next.js App Router + React + TypeScript (strict)</h3>
+    <p>Not an open decision. Next.js App Router gives us server components, static generation, per-route caching, and middleware — exactly the primitives multi-tenant site rendering needs. TypeScript strict is mandatory; <code>any</code> requires written justification.</p>
+
+    <h3>1.2 Visual Editor — Puck <span class="chip win">recommended</span> vs GrapesJS</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Dimension</th><th>Puck</th><th>GrapesJS</th></tr></thead>
+      <tbody>
+        <tr><td>Model</td><td>React-native; renders your own React components</td><td>Framework-agnostic; manipulates HTML/CSS in an iframe</td></tr>
+        <tr><td>Output</td><td>Clean, portable <strong>JSON</strong> component tree</td><td>HTML + CSS strings (plus its own JSON model)</td></tr>
+        <tr><td>Fit with Next.js/React</td><td>Native — editor &amp; runtime share components</td><td>Adapter needed; render HTML, not React</td></tr>
+        <tr><td>Design-system control</td><td>High — you define the allowed blocks</td><td>Lower — freeform HTML/CSS invites drift</td></tr>
+        <tr><td>Maturity/ecosystem</td><td>Younger, smaller community</td><td>Older, larger, more plugins</td></tr>
+        <tr><td>Security surface</td><td>Structured props → easy to validate</td><td>Freeform HTML/CSS → larger surface</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rec"><b>Recommendation: Puck.</b> Our product is intentionally constrained — a curated block set (hero, services, reviews, gallery, contact), not a freeform HTML canvas. Puck persists a clean JSON tree, and the <strong>same</strong> components render the public site: one source of truth, strong typing, a small auditable sanitization surface.</div>
+    <p><strong>Main tradeoff:</strong> Puck is younger; we accept more responsibility for building block components. Acceptable because our block set is small and we want to own it anyway.</p>
+
+    <h3>1.3 Postgres host — Neon <span class="chip win">recommended</span> vs Supabase</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Dimension</th><th>Neon</th><th>Supabase</th></tr></thead>
+      <tbody>
+        <tr><td>Core offering</td><td>Serverless Postgres (autoscale, branching)</td><td>Postgres + Auth + Storage + Realtime + RLS</td></tr>
+        <tr><td>DB branching</td><td>Yes — first-class</td><td>Limited</td></tr>
+        <tr><td>Auth</td><td>None (we use FieldPie auth)</td><td>Built-in (we do <strong>not</strong> want parallel auth)</td></tr>
+        <tr><td>Storage</td><td>None (we use S3-compatible)</td><td>Built-in (likely unused)</td></tr>
+        <tr><td>Serverless/edge fit</td><td>Excellent</td><td>Good</td></tr>
+        <tr><td>Lock-in</td><td>Low — "just Postgres"</td><td>Higher — value is the platform</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rec"><b>Recommendation: Neon.</b> We already use FieldPie auth (no parallel auth) and S3-compatible storage — removing the two biggest reasons to pick Supabase. What remains is Postgres, and Neon is the cleaner, lower-lock-in, serverless-native option with branching that makes migration testing safer.</div>
+    <div class="note"><b>Note on RLS:</b> Neon doesn't stop us adding Postgres Row-Level Security as defense-in-depth later. Our primary isolation guarantee is the application data-access layer; RLS can be layered on top.</div>
+
+    <h3>1.4 ORM — Drizzle <span class="chip win">recommended</span> vs Prisma</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Dimension</th><th>Drizzle</th><th>Prisma</th></tr></thead>
+      <tbody>
+        <tr><td>Style</td><td>SQL-first, thin, TS-native query builder</td><td>Schema-DSL + generated client</td></tr>
+        <tr><td>Serverless cold-start</td><td>Very light; excellent</td><td>Heavier engine; improving</td></tr>
+        <tr><td>Multi-tenant filtering</td><td>Explicit SQL → easy to force <code>tenant_id</code></td><td>Abstraction can hide the filter</td></tr>
+        <tr><td>Migrations</td><td>drizzle-kit (SQL-visible)</td><td>Prisma Migrate (mature, polished)</td></tr>
+        <tr><td>Ecosystem/maturity</td><td>Younger, fast-growing</td><td>Very mature, great DX</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rec"><b>Recommendation: Drizzle.</b> SQL-first, low overhead, plays well with Neon's serverless driver, and — critically for our hard rule that <strong>every tenant-scoped query filters by <code>tenant_id</code></strong> — keeps queries explicit and easy to wrap in a mandatory tenant-scoped data-access layer.</div>
+    <p><strong>Main tradeoff:</strong> Prisma has more mature migrations and a larger ecosystem; Drizzle asks the team to be comfortable closer to SQL. Our standards already value explicit, auditable data access.</p>
+
+    <h3>1.5 Hosting — Vercel now + documented self-host path <span class="chip win">recommended</span></h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Dimension</th><th>Vercel (early)</th><th>Self-host VPS + Cloudflare CDN (scale)</th></tr></thead>
+      <tbody>
+        <tr><td>Time to ship</td><td>Fastest — native Next.js</td><td>Slower — we own the ops</td></tr>
+        <tr><td>Custom domains at scale</td><td>Works; per-domain cost adds up</td><td>Cheaper per domain at volume</td></tr>
+        <tr><td>Cost curve</td><td>Low small, steepens with traffic/domains</td><td>Higher upfront, cheaper at scale</td></tr>
+        <tr><td>Control</td><td>Less infra control</td><td>Full control</td></tr>
+      </tbody>
+    </table></div>
+    <div class="rec"><b>Recommendation: Start on Vercel; document (don't build) the self-host migration path now.</b> Vercel ships Phase 1 fastest. Because published sites are statically generated and CDN-cached, visitor traffic mostly bypasses origin regardless of host, softening Vercel's cost curve and de-risking the eventual migration.</div>
+  </section>
+
+  <section id="s2">
+    <h2><span class="num">2</span> High-Level System Architecture</h2>
+    <p>Two pipelines matter: the <strong>visitor read path</strong> and the <strong>editor → publish write path</strong>. A third concern — <strong>initializing a new site</strong> (template, AI, or blank) — feeds the write path at onboarding.</p>
+
+    <h3>2.1 Visitor request flow (hostname → tenant → content → render)</h3>
+<pre>Visitor
+  │  GET https://acme-plumbing.com/services   (or acme.fieldpie.site/services)
+  ▼
+CDN edge (cache)
+  │  cache HIT  ──────────────► serve cached static HTML  (origin not hit)
+  │  cache MISS
+  ▼
+Next.js middleware  ── resolves Host header → tenant
+  │   1. read Host header
+  │   2. look up domain in `domains` table (custom domain OR *.fieldpie.site)
+  │   3. map → tenant_id (+ site_id)
+  │   4. attach tenant context; 404 if unknown host
+  ▼
+Route handler / Server Component
+  │   5. load PUBLISHED site + page JSON for (tenant_id, path)   [tenant-scoped]
+  │   6. resolve design tokens (brand colors/fonts/logo) → CSS variables
+  │   7. render Puck JSON tree → HTML with shared block components
+  │   8. inject SEO (title, meta, OG, LocalBusiness JSON-LD)
+  ▼
+Static HTML response  → cached at CDN edge for subsequent visitors</pre>
+    <p>Tenant resolution happens <strong>once</strong> in middleware; every downstream read is tenant-scoped; visitor traffic is served from the CDN; only the <strong>published</strong> state is ever visible.</p>
+
+    <h3>2.2 Editor → JSON storage → publish → live pipeline</h3>
+<pre>Tenant admin (authenticated via FieldPie auth/session)
+  │  opens the site editor for their tenant
+  ▼
+Editor (Puck)  ── loads DRAFT page JSON
+  │   edits blocks; autosave writes DRAFT  (draft never affects live)
+  ▼
+`pages`/`blocks` DRAFT state in Postgres  (tenant-scoped, sanitized)
+  │  tenant clicks "Publish"
+  ▼
+Publish action
+  │   1. validate + sanitize draft content
+  │   2. copy DRAFT → PUBLISHED snapshot (versioned in `publish_states`)
+  │   3. trigger revalidation of affected static paths
+  │   4. purge CDN cache for those paths
+  ▼
+Live site serves the new PUBLISHED snapshot</pre>
+    <div class="warnbox"><b>Strict draft/published separation</b> is a hard requirement: editing writes only to draft; visitors only ever see the last published snapshot. Publish is an explicit, atomic, versioned promotion (enabling rollback later).</div>
+
+    <h3>2.3 Initializing a new site (template, AI, or blank)</h3>
+    <p>When a tenant creates a site they choose how to start. We never force a blank page, but we also never assume the whole site can be derived from FieldPie data — offerings vary too much per tenant. All three strategies produce an <strong>editable draft in the same block-JSON model</strong>, so everything downstream (editor, publish, render) is identical:</p>
+<pre>Tenant chooses a start strategy
+  │
+  ├─ (a) Starter template  → pick an industry/style template
+  │                          → its prebuilt section layout loads as the DRAFT
+  │
+  ├─ (b) AI content gen     → short intake (business type, services, tone)
+  │                          → AI generates section copy + suggested layout
+  │                            as the DRAFT; sections regenerate individually
+  │
+  └─ (c) Blank             → empty canvas; add sections from the block catalog
+
+Optional prefill (any strategy, when data exists):
+  FieldPie low-variance fields ──► business name, phone, address, hours
+                                   → Contact block + LocalBusiness schema</pre>
+    <p>After initialization the tenant works in the same <strong>flexible builder</strong>: drag-and-drop to reorder sections, add/remove blocks like widgets, swap photos, edit copy, and adjust colors and fonts via design tokens — then connect a domain and publish. Contact/request forms create <strong>leads in FieldPie</strong> where connected (internal leads otherwise). AI generation ships as <strong>Phase 1.5</strong>; Phase 1 delivers templates + blank + the full flexible builder.</p>
+  </section>
+
+  <section id="s3">
+    <h2><span class="num">3</span> Database Schema &amp; Tenant Isolation</h2>
+    <p>Postgres is the primary store. Content lives as structured JSON in <code>blocks</code>/<code>pages</code>. Field lists below are indicative and will be finalized in Phase 1, item 2.</p>
+
+    <h3>3.1 Core tables</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Table</th><th>Purpose</th><th>Key fields</th></tr></thead>
+      <tbody>
+        <tr><td><code>tenants</code></td><td>One row per builder customer (not necessarily a FieldPie account)</td><td>id, fieldpie_account_id (<strong>nullable</strong>), name, status, timestamps</td></tr>
+        <tr><td><code>templates</code></td><td>Reusable starter layouts for the "pick a template" path</td><td>id, name, industry, thumbnail_url, blocks (jsonb), is_system</td></tr>
+        <tr><td><code>sites</code></td><td>One site per tenant (allow &gt;1 later)</td><td>id, tenant_id, name, default_locale, theme_tokens (jsonb), seo_defaults (jsonb)</td></tr>
+        <tr><td><code>pages</code></td><td>Pages within a site</td><td>id, tenant_id, site_id, path, title, seo (jsonb), draft_blocks_id, published_blocks_id</td></tr>
+        <tr><td><code>blocks</code></td><td>Puck JSON tree, versioned (the content)</td><td>id, tenant_id, page_id, content (jsonb), kind (draft|published), version</td></tr>
+        <tr><td><code>domains</code></td><td>Hostname → tenant/site mapping</td><td>id, tenant_id, site_id, hostname (unique), type (subdomain|custom), verification_status, cloudflare_hostname_id, ssl_status, is_primary</td></tr>
+        <tr><td><code>media_assets</code></td><td>References to S3-compatible storage</td><td>id, tenant_id, site_id, storage_key, url, alt_text, dimensions, mime_type, source (fieldpie|upload)</td></tr>
+        <tr><td><code>publish_states</code></td><td>Audit/version log of publishes</td><td>id, tenant_id, site_id, page_id, published_blocks_id, published_by, published_at, note</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3.2 Relationships</h3>
+    <p><code>tenants 1─* sites 1─* pages 1─* blocks</code>; <code>sites 1─* domains</code>; <code>sites 1─* media_assets</code>; <code>pages 1─* publish_states</code>. <strong>Every</strong> content table carries <code>tenant_id</code> directly (denormalized on purpose) so isolation never depends on a join being correct.</p>
+
+    <h3>3.3 Tenant isolation strategy (security requirement)</h3>
+    <ol>
+      <li><strong>Data-access layer (primary control).</strong> All tenant data goes through a single <code>TenantScopedDb</code> wrapper constructed with a <code>tenant_id</code> that <strong>injects <code>WHERE tenant_id = $current</code> into every read and write</strong>. Application code cannot query content tables directly. Any query touching a tenant table without a tenant scope is a lint/review failure.</li>
+      <li><strong>Request context.</strong> Middleware resolves the tenant once and establishes an immutable tenant context. For admin/editor routes the tenant is derived from the FieldPie-authenticated session; cross-tenant access is rejected.</li>
+      <li><strong>Database RLS (optional hardening, later).</strong> On plain Postgres (Neon) we can add Row-Level Security keyed on a session variable as a backstop. Recommended for Phase 3, not required for Phase 1.</li>
+    </ol>
+    <p>Additional rules: <code>tenant_id</code> and personal data never appear in URL params; user-authored content is sanitized before storage and again at render; media access is tenant-scoped.</p>
+  </section>
+
+  <section id="s4">
+    <h2><span class="num">4</span> Custom Domains &amp; SSL (Cloudflare for SaaS)</h2>
+
+    <h3>4.1 Free subdomain: <code>*.fieldpie.site</code> (wildcard)</h3>
+    <p>We provision a <strong>wildcard DNS record</strong> and a <strong>wildcard TLS certificate</strong> covering all subdomains. On tenant creation we insert a <code>domains</code> row (<code>type = subdomain</code>, <code>verification_status = active</code> immediately — no per-tenant DNS or cert work). Zero-friction, available at onboarding.</p>
+
+    <h3>4.2 BYO custom domain: Cloudflare for SaaS (custom hostnames)</h3>
+<pre>1. Tenant enters custom domain in the builder.
+2. We call Cloudflare for SaaS "custom hostname" API → creates a custom
+   hostname under our zone; store cloudflare_hostname_id, status = pending.
+3. We show the DNS records to add at their registrar:
+     - a CNAME (their domain → our Cloudflare SaaS target), and
+     - a domain-control-validation (DCV) record for the certificate.
+4. Tenant adds the records at their DNS provider.
+5. Cloudflare validates ownership (DCV) and issues/renews SSL automatically.
+6. We poll / receive status → when hostname + cert active,
+   set verification_status = active, ssl_status = active.
+7. Middleware now resolves the custom domain → tenant; CDN serves over HTTPS.
+8. Certificate renewal is automatic (Cloudflare-managed) — no tenant action.</pre>
+    <p>Cloudflare for SaaS is purpose-built for this: thousands of customer-owned hostnames terminating TLS under our infrastructure, with automated issuance and renewal.</p>
+
+    <h3>4.3 Verification UX</h3>
+    <p>The builder shows a <strong>domain status panel</strong> per custom domain: exact DNS records with copy buttons, a live status badge, a "Re-check" button that polls Cloudflare, and help text for common registrar mistakes. Subdomains show as <span class="st a">Active</span> immediately.</p>
+    <div class="status-flow">
+      <span class="st p">Pending</span><span class="arrow">→</span>
+      <span class="st v">Verifying</span><span class="arrow">→</span>
+      <span class="st a">Active</span><span class="arrow">/</span>
+      <span class="st f">Failed (with reason)</span>
+    </div>
+  </section>
+
+  <section id="s5">
+    <h2><span class="num">5</span> Repository Structure &amp; Module Boundaries</h2>
+    <p>A single Next.js repo with feature-based module boundaries (App Router, TypeScript):</p>
+<pre>fieldpie-website-builder/
+├─ app/
+│  ├─ (public)/                 # public tenant site rendering (SSR/SSG)
+│  │  └─ [[...path]]/           # catch-all: tenant resolved via middleware
+│  ├─ (admin)/                  # authenticated builder/editor UI (auth adapter)
+│  │  ├─ start/                 # new-site init: template / AI / blank chooser
+│  │  ├─ editor/                # Puck editor (drag-drop, add/remove sections)
+│  │  ├─ domains/               # custom domain + verification UX
+│  │  └─ settings/              # branding/theme (colors, fonts), SEO defaults
+│  ├─ api/                      # route handlers (publish, forms→leads, domains)
+│  ├─ sitemap.xml/route.ts      # per-tenant sitemap
+│  └─ robots.txt/route.ts
+├─ middleware.ts                # hostname → tenant resolution
+├─ src/
+│  ├─ blocks/                   # Puck block catalog (hero, services, reviews, gallery, contact)
+│  ├─ editor/                   # Puck config, block registration
+│  ├─ rendering/                # JSON tree → HTML, theme-token → CSS-var
+│  ├─ tenancy/                  # tenant context, hostname resolver, TenantScopedDb
+│  ├─ db/                       # Drizzle schema, migrations, query modules
+│  ├─ domains/                  # Cloudflare-for-SaaS client, verification state machine
+│  ├─ site-init/               # init strategies: template loader, prefill, blank
+│  ├─ templates/                # starter template catalog + thumbnails
+│  ├─ ai/                       # AI content generation (Phase 1.5): prompts, guardrails
+│  ├─ auth/                     # auth adapter (FieldPie session + room for own signup)
+│  ├─ fieldpie/                 # FieldPie API adapter (optional prefill + lead creation)
+│  ├─ seo/                      # title/meta/OG/JSON-LD/sitemap scaffolding
+│  ├─ media/                    # S3-compatible storage client, image handling
+│  ├─ publish/                  # draft→published promotion, revalidate + purge
+│  ├─ security/                 # sanitization (DOMPurify), input validation
+│  └─ shared/                   # types, utils, design tokens
+├─ tests/                       # tenant resolution, publish flow, domain verification
+└─ README.md                    # what it does + how to run/test (American English)</pre>
+    <p><strong>Key boundaries:</strong> <code>tenancy</code> is the only module that establishes tenant context and owns <code>TenantScopedDb</code>; everything else receives a tenant-scoped db, never a raw one. <code>blocks</code> is shared between <code>editor</code> and <code>rendering</code> — one definition, two consumers. <code>auth</code> is an <strong>adapter</strong> supporting FieldPie session integration with room for an own-signup flow. <code>fieldpie</code> is an <strong>adapter</strong> for optional prefill and lead creation, isolating us from FieldPie's internal data model. <code>site-init</code> orchestrates the three start strategies but writes the same block-JSON as everything else. <code>ai</code> (Phase 1.5) is isolated so the LLM provider and prompts can evolve independently. <code>publish</code> is the only writer of published state. <code>security</code> centralizes sanitization so there's exactly one place to audit.</p>
+  </section>
+
+  <section id="s6">
+    <h2><span class="num">6</span> Phase 1 (MVP) — Ordered Work Items</h2>
+    <p>Scope: <strong>subdomain-only</strong> sites, a <strong>flexible builder</strong> (drag-and-drop reordering, add/remove sections, color/font control), a small block set, init via <strong>template or blank</strong> (AI is Phase 1.5), and a request form that creates a lead. Custom domains are <strong>Phase 2</strong> and excluded here. Each item is sized to be planned, approved, and implemented as its own step.</p>
+    <h4>Phase 1 (MVP)</h4>
+    <ol>
+      <li><strong>Project scaffold + standards.</strong> Next.js App Router + TS strict, Tailwind + design tokens, lint/format, CI, README skeleton. No product logic.</li>
+      <li><strong>Database schema + Drizzle setup.</strong> Implement the eight tables (incl. <code>templates</code>); drizzle-kit migrations; connect Neon. Finalize field lists.</li>
+      <li><strong>Tenant context + <code>TenantScopedDb</code>.</strong> Isolation wrapper + request-scoped context, with tests proving cross-tenant access is impossible.</li>
+      <li><strong>Hostname → tenant middleware (subdomain).</strong> Resolve <code>*.fieldpie.site</code>; 404 unknown hosts; wildcard subdomain + cert configured.</li>
+      <li><strong>Block catalog v1 + theming.</strong> Hero, Services, Reviews, Gallery, Contact as typed React components usable in editor and runtime, themed via CSS variables (per-tenant colors/fonts).</li>
+      <li><strong>Public render path (SSR/SSG).</strong> Render published JSON → HTML with SEO scaffolding (title, meta, OG, LocalBusiness JSON-LD, sitemap, robots) and CDN caching.</li>
+      <li><strong>Flexible Puck editor (draft).</strong> Register block catalog; <strong>drag-and-drop reordering, add/remove sections, color/font controls</strong>; load/save draft JSON; autosave; strict draft/published separation.</li>
+      <li><strong>Publish flow.</strong> Atomic draft→published promotion, versioned; on-demand revalidation + CDN purge.</li>
+      <li><strong>Site initialization (template + blank) + start chooser.</strong> New-site flow: pick a starter template or start blank, both producing an editable draft; optional FieldPie prefill of contact fields where connected.</li>
+      <li><strong>Request form → lead.</strong> Contact block submits, sanitized/validated, creates a lead (via FieldPie adapter when connected; internal lead otherwise).</li>
+      <li><strong>Auth abstraction + tenant provisioning.</strong> Auth adapter supporting FieldPie session with room for own signup; tenant provisioned independently of a FieldPie account (<code>fieldpie_account_id</code> optional); reject cross-tenant.</li>
+      <li><strong>MVP hardening + tests + README.</strong> Critical-path tests, WCAG AA + mobile-first, performance budget (LCP, images), American-English run/test notes.</li>
+    </ol>
+    <h4>Phase 1.5 — AI content generation</h4>
+    <p>An AI service that generates section copy and a suggested layout from a short intake (business type, services, tone), with <strong>per-section regenerate</strong>. New <code>src/ai</code> module: LLM provider, prompt design, cost controls, content guardrails/sanitization. Delivered right after the flexible builder so AI writes into a proven block model.</p>
+    <p><strong>Suggested order:</strong> 1 → 2 → 3 → 4, then 5 → 6, then 7 → 8, then 9/10/11, then 12, then Phase 1.5. Each item is still gated individually.</p>
+  </section>
+
+  <section id="s7">
+    <h2><span class="num">7</span> Open Questions &amp; Assumptions</h2>
+    <div class="rec"><b>Resolved in v1.1 (locked):</b> site init is <strong>template / AI / blank, tenant's choice</strong>; the builder is fully flexible (drag-and-drop, add/remove sections, color/font control); <strong>AI is Phase 1.5</strong>; auth is <strong>abstracted</strong> and the tenant is <strong>decoupled from a FieldPie account</strong> (<code>fieldpie_account_id</code> optional), so the builder can later open to non-FieldPie users without a rewrite.</div>
+    <h3>Assumptions (correct me if wrong)</h3>
+    <ul>
+      <li>FieldPie can, <em>when a tenant is connected</em>, expose an API to <strong>create a lead</strong> and read <strong>low-variance contact fields</strong> (name, phone, address, hours) for optional prefill. Full service/area/review seeding is <strong>no longer assumed</strong>.</li>
+      <li>FieldPie has an auth/session system we integrate with via the auth adapter — while keeping room for our own signup flow later.</li>
+      <li>We control <code>fieldpie.site</code> (or can acquire it) and can set up wildcard DNS + wildcard TLS.</li>
+      <li>We have a Cloudflare account eligible for <strong>Cloudflare for SaaS</strong>, and an <strong>S3-compatible</strong> object store.</li>
+      <li>One site per tenant for Phase 1 (schema allows more later).</li>
+    </ul>
+    <h3>Open questions (helpful, no longer blocking the core build)</h3>
+    <ol>
+      <li><strong>FieldPie prefill + lead API.</strong> For a connected tenant, which fields can we read for prefill, and what is the API/shape/auth to <strong>create a lead</strong>? (items 9–10 + the <code>fieldpie</code> adapter)</li>
+      <li><strong>Auth details.</strong> Session cookie / JWT / SSO, so we can build the adapter. Not committing to FieldPie-only vs. open signup yet. (item 11)</li>
+      <li><strong>AI provider &amp; budget (Phase 1.5).</strong> Preferred LLM provider/model, per-generation cost ceiling, and any content/compliance constraints on AI-authored copy?</li>
+      <li><strong>Domain &amp; infra ownership.</strong> Is the builder domain owned? Do we have Cloudflare-for-SaaS and S3-compatible accounts, or include procurement?</li>
+      <li><strong>Templates &amp; theming freedom.</strong> How many starter templates for MVP, which industries, and how much theming freedom (fixed palettes vs. free color/font choice)? Any FieldPie brand kit?</li>
+      <li><strong>Scale &amp; cost targets.</strong> Expected tenants/custom domains in year one? Informs when the self-host path becomes relevant.</li>
+      <li><strong>Compliance/data residency.</strong> Any regional data-residency / PII requirements affecting DB region and storage?</li>
+    </ol>
+  </section>
+
+  <section id="s8">
+    <h2><span class="num">8</span> Decision Gate — What I Need You to Approve</h2>
+    <h3>Stack decisions — <span class="chip win">approved</span></h3>
+    <div class="decisions">
+      <div class="dcard"><div class="n">1</div><div><h4>Editor: Puck <span class="chip win">approved</span></h4><p>The flexible drag-and-drop / add-remove-section vision reinforces this choice.</p></div></div>
+      <div class="dcard"><div class="n">2</div><div><h4>Postgres: Neon <span class="chip win">approved</span></h4><p>Low lock-in, serverless-native, branching.</p></div></div>
+      <div class="dcard"><div class="n">3</div><div><h4>ORM: Drizzle <span class="chip win">approved</span></h4><p>SQL-first, light, makes mandatory <code>tenant_id</code> filtering explicit.</p></div></div>
+      <div class="dcard"><div class="n">4</div><div><h4>Hosting: Vercel + self-host path <span class="chip win">approved</span></h4><p>Fastest to ship; static + CDN softens cost; self-host stays a planned lever.</p></div></div>
+    </div>
+    <h3>Direction decisions — <span class="chip win">confirmed</span></h3>
+    <div class="decisions">
+      <div class="dcard"><div class="n">✓</div><div><h4>Site init: template / AI / blank</h4><p>Tenant's choice; all three write the same block-JSON.</p></div></div>
+      <div class="dcard"><div class="n">✓</div><div><h4>AI content generation: Phase 1.5</h4><p>Ships right after the flexible builder.</p></div></div>
+      <div class="dcard"><div class="n">✓</div><div><h4>Auth abstracted; tenant decoupled from FieldPie</h4><p>Can open to non-FieldPie users later without a rewrite.</p></div></div>
+    </div>
+    <h3>Remaining scope &amp; approach to confirm</h3>
+    <div class="decisions">
+      <div class="dcard"><div class="n">5</div><div><h4>Phase 1 scope (Section 6)</h4><p>Subdomain-only, flexible builder, template + blank init, form→lead; AI in Phase 1.5; custom domains in Phase 2. Approve / adjust?</p></div></div>
+      <div class="dcard"><div class="n">6</div><div><h4>Tenant isolation strategy (Section 3.3)</h4><p>App-layer <code>TenantScopedDb</code> primary; RLS as later hardening. Approve?</p></div></div>
+      <div class="dcard"><div class="n">7</div><div><h4>Database schema (Section 3)</h4><p>Now incl. <code>templates</code> and optional <code>fieldpie_account_id</code>. Approve as baseline?</p></div></div>
+      <div class="dcard"><div class="n">8</div><div><h4>Proceed order (Section 6)</h4><p>One approved step at a time, starting with item 1 (project scaffold). Approve starting point?</p></div></div>
+    </div>
+    <div class="warnbox">Once you confirm items 5–8, I'll write the detailed step plan for Phase 1 item 1 (project scaffold) and stop again for approval. No implementation begins before that.</div>
+  </section>
+
+  </div>
+</div>
+</main>
+</div>
+
+<footer>FieldPie Website Builder · Project Plan v1.1 · Prepared 2026-08-04 · DRAFT — awaiting final approval</footer>
+
+</body>
+</html>
