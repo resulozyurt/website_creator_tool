@@ -108,9 +108,9 @@ Each step is implemented, logged, and committed on its own. Sub-items are the co
   - [x] Request-scoped `TenantContext` (`src/tenancy/context.ts`, immutable/frozen)
   - [x] `forTenant(tenantId)` wrapper: filters every read/update/delete by `tenant_id`, forces `tenant_id` on insert; per-table repos (sites, pages, blocks, domains, media_assets, publish_states, + tenant self). `templates` excluded (global).
   - [x] Isolation tests (`tests/tenancy/...`) proving the tenant filter is always present, via `.toSQL()` (offline). Vitest configured. **Run `npm test` locally — not run in the tool sandbox.**
-- [ ] **Step 4 — Hostname → tenant middleware (subdomain case)**
-  - [ ] Resolve `*.fieldpie.site` → tenant/site; 404 unknown hosts
-  - [ ] Wildcard subdomain + wildcard cert configuration documented
+- [x] **Step 4 — Hostname → tenant middleware (subdomain case)**
+  - [x] Resolve `*.fieldpie.site` → tenant/site; 404 unknown hosts (pure edge parser + Node-runtime DB resolver + rewrite to `/sites/[host]`)
+  - [x] Wildcard subdomain + wildcard cert configuration documented (`docs/subdomain-routing.md`)
 - [ ] **Step 5 — Block catalog v1 + theming**
   - [ ] Hero, Services, Reviews, Gallery, Contact as typed React components
   - [ ] Usable in both editor and runtime; themed via CSS variables
@@ -148,6 +148,36 @@ Each step is implemented, logged, and committed on its own. Sub-items are the co
 ## Progress log
 
 Newest entries at the top.
+
+### 2026-08-04 — Step 4 complete: hostname → tenant middleware (subdomain case)
+Two-stage tenant resolution. The hostname *parse* is a pure, edge-safe function
+(`src/tenancy/hostname.ts`, `parseHost` → `root | subdomain | custom | invalid`; handles the
+apex/www, reserved subdomains, port stripping, case-folding, nested-label rejection, and
+`*.localhost` for local dev). The hostname *database lookup* is Node-runtime only
+(`src/tenancy/tenant-resolver.ts`, `resolveTenantByHostname` querying the `domains` table —
+subdomains always routable, custom domains require `verification_status='active'`). This split
+exists because `node-postgres` cannot run on the Edge runtime where Next middleware executes.
+
+`middleware.ts` (root) reads the `Host` header, and for a tenant host rewrites the request to
+`/sites/<hostname>/<path>` (host carried in the path, **not** a header, so Step 6/8 static
+generation isn't forced dynamic); unknown/malformed hosts get a 404, and the internal
+`/sites/*` namespace is not externally addressable on the app domain.
+`app/sites/[host]/[[...path]]/page.tsx` is a minimal placeholder that resolves the tenant and
+`notFound()`s unknown hosts — the real renderer + SEO land in Step 6. Middleware imports the
+pure parser directly (`@/tenancy/hostname`), never the `@/tenancy` barrel, to keep the db
+client out of the edge bundle.
+
+**Architectural note (non-blocking):** resolving hostname→tenant is a cross-tenant *bootstrap*
+lookup (the tenant is unknown at that point), so `tenant-resolver` legitimately uses the raw db
+client — one of the sanctioned exceptions alongside migrations, and it stays inside the tenancy
+layer. Everything after a `tenantId` is known still goes through `forTenant`.
+
+**Verified in the tool sandbox this time:** `npx tsc --noEmit` clean; `npx vitest run` → 28/28
+passing (new: 15 hostname cases + 4 resolver SQL cases, both offline via `.toSQL()`). Note: the
+mounted `node_modules` was installed on Windows, so the Linux `@rollup/rollup-linux-x64-gnu`
+native binary had to be added in-sandbox to run Vitest; this does not touch `package.json` /
+`package-lock.json`. `next lint` is slow to boot in the sandbox and is left to CI as before.
+Next: Step 5 (block catalog v1 + theming).
 
 ### 2026-08-04 — Step 3 complete: tenant-scoped data-access layer
 Added `src/tenancy/context.ts` (immutable `TenantContext`), `src/tenancy/tenant-scoped-db.ts`
@@ -215,6 +245,7 @@ Newest at the top. Messages are American English, imperative mood.
 
 | Date       | Commit message                                                                 |
 | ---------- | ------------------------------------------------------------------------------ |
+| 2026-08-04 | `feat(tenancy): resolve tenant by hostname via edge middleware and subdomain routing` |
 | 2026-08-04 | `feat(tenancy): add tenant-scoped data-access layer with isolation tests`       |
 | 2026-08-04 | `refactor(db): switch to Railway Postgres via node-postgres driver`             |
 | 2026-08-04 | `feat(db): add Drizzle schema and Neon client for core tables`                 |
